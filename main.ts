@@ -1,4 +1,4 @@
-import { Plugin, Notice } from "obsidian";
+import { Plugin, Notice, setIcon, MarkdownView } from "obsidian";
 import { VERTICAL_EDITOR_VIEW_TYPE, VerticalEditorView } from "./VerticalEditorView";
 
 export default class VerticalEditorPlugin extends Plugin {
@@ -14,15 +14,7 @@ export default class VerticalEditorPlugin extends Plugin {
       id: "open-vertical-editor",
       name: "open vertical editor",
       callback: () => {
-        const activeFile = this.app.workspace.getActiveFile();
-        if (activeFile) {
-          this.app.workspace.getLeaf(true).setViewState({
-            type: VERTICAL_EDITOR_VIEW_TYPE,
-            state: { file: activeFile.path },
-          });
-        } else {
-          new Notice("You have no active markdown file.");
-        }
+        this.fromMarkdownToVert();
       },
       // id: "toggle-vertical-editor",
       // name: "Toggle Vertical Editor",
@@ -64,18 +56,31 @@ export default class VerticalEditorPlugin extends Plugin {
       //   }
       // },
     });
-    this.addCommand({
-      id: 'analyze-md',
-      name: 'Analyze markdown file',
-      editorCallback: (editor) => {
-        const content = editor.getValue();
-        // new Notice(`${content}`);
-        const lines = content.split(/\r?\n/);
-        const emptyLines = lines.filter(line => line.trim() === '').length;
-        new Notice(`Total lines: ${lines.length}, Empty lines: ${emptyLines}`);
-      }
-    });
 
+    // this.addRibbonIcon("dice", "My Button", (evt: MouseEvent) => {
+    //   new Notice("ボタンがクリックされました！");
+    // });
+
+    this.registerEvent(this.app.workspace.on("active-leaf-change", (leaf) => {
+      if (leaf && leaf.view instanceof MarkdownView) {
+        const header = leaf.view.containerEl.querySelector(".view-header");
+        if (header && !header.querySelector(".vertical-editor")) {
+          const btn = document.createElement("button");
+          btn.classList.add("clickable-icon", "vertical-editor");
+          setIcon(btn, "notebook-text")
+          btn.setAttribute("aria-label", "convert to vertical-editor")
+          btn.addEventListener("click", () => {
+            this.fromMarkdownToVert();
+          });
+          const titleContainer = header.querySelector(".view-header-title-container");
+          if (titleContainer) {
+            titleContainer.insertAdjacentElement("afterend", btn);
+          } else {
+            header.appendChild(btn);
+          }
+        }
+      }
+    }));
 
     // delete view when finish plugin
     this.registerEvent(
@@ -95,5 +100,17 @@ export default class VerticalEditorPlugin extends Plugin {
 
   onunload() {
     this.app.workspace.detachLeavesOfType(VERTICAL_EDITOR_VIEW_TYPE);
+  }
+
+  async fromMarkdownToVert() {
+    const activeFile = this.app.workspace.getActiveFile();
+    if (activeFile) {
+      this.app.workspace.getLeaf(true).setViewState({
+        type: VERTICAL_EDITOR_VIEW_TYPE,
+        state: { file: activeFile.path },
+      });
+    } else {
+      new Notice("You have no active markdown file.");
+    }
   }
 }

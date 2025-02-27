@@ -35,7 +35,7 @@ export class VerticalEditorView extends ItemView {
         editorDiv.style.writingMode = "vertical-rl";
         // editorDiv.style.textOrientation = "upright";
         editorDiv.style.lineHeight = "2";
-        editorDiv.style.letterSpacing = "0.1em";
+        editorDiv.style.letterSpacing = "0.2em";
         editorDiv.style.border = "1px solid black";
         editorDiv.style.padding = "10px";
         editorDiv.style.height = "90%";
