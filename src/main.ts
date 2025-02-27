@@ -1,5 +1,6 @@
-import { Plugin, Notice, setIcon, MarkdownView } from "obsidian";
+import { Plugin, Notice, setIcon, MarkdownView, WorkspaceLeaf } from "obsidian";
 import { VERTICAL_EDITOR_VIEW_TYPE, VerticalEditorView } from "./VerticalEditorView";
+import { BADHINTS } from "dns";
 
 export default class VerticalEditorPlugin extends Plugin {
   async onload() {
@@ -102,15 +103,15 @@ export default class VerticalEditorPlugin extends Plugin {
     this.app.workspace.detachLeavesOfType(VERTICAL_EDITOR_VIEW_TYPE);
   }
 
-  async fromMarkdownToVert() {
-    const activeFile = this.app.workspace.getActiveFile();
-    if (activeFile) {
-      this.app.workspace.getLeaf(true).setViewState({
-        type: VERTICAL_EDITOR_VIEW_TYPE,
-        state: { file: activeFile.path },
-      });
-    } else {
-      new Notice("You have no active markdown file.");
-    }
-  }
+  // async fromMarkdownToVert() {
+  //   const activeFile = this.app.workspace.getActiveFile();
+  //   if (activeFile) {
+  //     this.app.workspace.getLeaf(true).setViewState({
+  //       type: VERTICAL_EDITOR_VIEW_TYPE,
+  //       state: { file: activeFile.path },
+  //     });
+  //   } else {
+  //     new Notice("You have no active markdown file.");
+  //   }
+  // }
 }
