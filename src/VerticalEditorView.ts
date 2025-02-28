@@ -1,12 +1,5 @@
-import { ItemView, WorkspaceLeaf, TFile, MarkdownView } from "obsidian";
-import { unified } from "unified";
-import remarkParse from "remark-parse";
-import remarkBreaks from "remark-breaks";
-import remarkRehype from "remark-rehype";
-import rehypeStringify from "rehype-stringify";
-import rehypeSanitize from "rehype-sanitize";
-
-export const VERTICAL_EDITOR_VIEW_TYPE = "vertical-editor";
+import { ItemView, WorkspaceLeaf, TFile } from "obsidian";
+import { SwitchText } from "./switchtext";
 
 export class VerticalEditorView extends ItemView {
     file: TFile | null = null; // markdown file
@@ -16,7 +9,7 @@ export class VerticalEditorView extends ItemView {
     }
 
     getViewType(): string {
-        return VERTICAL_EDITOR_VIEW_TYPE;
+        return "vertical-editor";
     }
 
     getDisplayText(): string {
@@ -42,31 +35,17 @@ export class VerticalEditorView extends ItemView {
         editorDiv.style.overflowY = "auto";
 
         // obtain currently active markdown file
+        // これはあるわけがないか？
         const activeFile = this.app.workspace.getActiveFile();
-        if (activeFile) {
-            this.file = activeFile;
-            // console.log("received file path: ", this.file);
 
-            // read vertical editor the content of markdown file
-            const fileContent = await this.app.vault.read(activeFile);
-            const htmlFile = await unified()
-                .use(remarkParse)
-                .use(remarkBreaks)
-                .use(remarkRehype)
-                .use(rehypeSanitize)
-                .use(rehypeStringify)
-                .process(fileContent)
-            // console.log(String(htmlFile));
-            editorDiv.innerHTML = String(htmlFile);
-        } else {
-            // editorDiv.setText("新規ファイルまたは空の内容です。");
-            editorDiv.innerHTML = ("<p>新規ファイルまたは空の内容です。</p>");
-        }
+        let sw = new SwitchText(this.app);
+        this.file = await sw.fromMarkdownToHTML(activeFile, editorDiv);
+        console.log(editorDiv);
 
-        // save edited data
         editorDiv.addEventListener("input", async () => {
             if (this.file) {
                 const content = editorDiv.innerText;
+                console.log(content);
                 await this.app.vault.modify(this.file, content);
             }
         });

@@ -1,12 +1,12 @@
 import { Plugin, Notice, setIcon, MarkdownView, WorkspaceLeaf } from "obsidian";
-import { VERTICAL_EDITOR_VIEW_TYPE, VerticalEditorView } from "./VerticalEditorView";
-import { BADHINTS } from "dns";
+import { VerticalEditorView } from "./VerticalEditorView";
+import { SwitchView } from "./switchview";
 
 export default class VerticalEditorPlugin extends Plugin {
   async onload() {
     // register vertical editor view
     this.registerView(
-      VERTICAL_EDITOR_VIEW_TYPE,
+      "vertical-editor",
       (leaf) => new VerticalEditorView(leaf)
     );
 
@@ -71,7 +71,8 @@ export default class VerticalEditorPlugin extends Plugin {
           setIcon(btn, "notebook-text")
           btn.setAttribute("aria-label", "convert to vertical-editor")
           btn.addEventListener("click", () => {
-            this.fromMarkdownToVert();
+            let sv = new SwitchView(this.app);
+            sv.fromMarkdownToVert();
           });
           const titleContainer = header.querySelector(".view-header-title-container");
           if (titleContainer) {
@@ -88,7 +89,7 @@ export default class VerticalEditorPlugin extends Plugin {
       this.app.workspace.on("file-open", (file) => {
         if (file) {
           const leaves = this.app.workspace.getLeavesOfType(
-            VERTICAL_EDITOR_VIEW_TYPE
+            "vertical-editor"
           );
           leaves.forEach((leaf) => {
             const view = leaf.view as VerticalEditorView;
@@ -100,18 +101,18 @@ export default class VerticalEditorPlugin extends Plugin {
   }
 
   onunload() {
-    this.app.workspace.detachLeavesOfType(VERTICAL_EDITOR_VIEW_TYPE);
+    this.app.workspace.detachLeavesOfType("vertical-editor");
   }
 
-  // async fromMarkdownToVert() {
-  //   const activeFile = this.app.workspace.getActiveFile();
-  //   if (activeFile) {
-  //     this.app.workspace.getLeaf(true).setViewState({
-  //       type: VERTICAL_EDITOR_VIEW_TYPE,
-  //       state: { file: activeFile.path },
-  //     });
-  //   } else {
-  //     new Notice("You have no active markdown file.");
-  //   }
-  // }
+  async fromMarkdownToVert() {
+    const activeFile = this.app.workspace.getActiveFile();
+    if (activeFile) {
+      this.app.workspace.getLeaf(true).setViewState({
+        type: "vertical-editor",
+        state: { file: activeFile.path },
+      });
+    } else {
+      new Notice("You have no active markdown file.");
+    }
+  }
 }
