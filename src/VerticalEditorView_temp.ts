@@ -1,8 +1,6 @@
 import { ItemView, WorkspaceLeaf, TFile } from "obsidian";
 import { SwitchText } from "./switchtext";
 
-export const VERTICAL_EDITOR_VIEW_TYPE = "vertical-editor";
-
 export class VerticalEditorView extends ItemView {
     file: TFile | null = null;
 
@@ -11,25 +9,20 @@ export class VerticalEditorView extends ItemView {
     }
 
     getViewType(): string {
-        return VERTICAL_EDITOR_VIEW_TYPE;
+        return "vertical-editor";
     }
 
     getDisplayText(): string {
         return this.file ? this.file.basename : "vertical_editor";
     }
 
-    getIcon(): string {
-        return "text";
-    }
-
     async onOpen(): Promise<void> {
-        console.log("onOpen");
         const container = this.containerEl.children[1];
         container.empty();
 
         // make vertical editor
         const editorDiv = container.createDiv({
-            cls: VERTICAL_EDITOR_VIEW_TYPE,
+            cls: "vertical-editor",
         });
         editorDiv.contentEditable = "true";
 

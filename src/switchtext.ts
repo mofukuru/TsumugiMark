@@ -1,4 +1,4 @@
-import { App, TFile } from "obsidian";
+import { App, editorEditorField, TFile, Vault } from "obsidian";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkBreaks from "remark-breaks";
@@ -16,26 +16,40 @@ export class SwitchText {
         this.app = app;
     }
 
-    async fromMarkdownToHTML(activeFile: TFile | null, editorDiv: HTMLDivElement) {
-        let file = null;
+    // async fromMarkdownToHTML(activeFile: TFile | null, editorDiv: HTMLDivElement) {
+    //     let file = null;
 
-        if (activeFile) {
-            file = activeFile;
-            const fileContent = await this.app.vault.read(activeFile);
-            const htmlFile = await unified()
-                .use(remarkParse)
-                .use(remarkBreaks)
-                .use(remarkRehype)
-                .use(rehypeSanitize)
-                .use(rehypeStringify)
-                .process(fileContent)
-            editorDiv.innerHTML = String(htmlFile);
-        } else {
-            // editorDiv.setText("新規ファイルまたは空の内容です。");
-            editorDiv.innerHTML = ("<p>新規ファイルまたは空の内容です。</p>");
-        }
+    //     if (activeFile) {
+    //         file = activeFile;
+    //         const fileContent = await this.app.vault.read(activeFile);
+    //         const htmlFile = await unified()
+    //             .use(remarkParse)
+    //             .use(remarkBreaks)
+    //             .use(remarkRehype)
+    //             .use(rehypeSanitize)
+    //             .use(rehypeStringify)
+    //             .process(fileContent)
+    //         editorDiv.innerHTML = String(htmlFile);
+    //     } else {
+    //         // editorDiv.setText("新規ファイルまたは空の内容です。");
+    //         editorDiv.innerHTML = ("<p>新規ファイルまたは空の内容です。</p>");
+    //     }
 
-        return file;
+    //     return file;
+    // }
+
+    async fromMarkdownToHTML(markdownContent: string) {
+        const div = document.createElement("div");
+        const htmlContent = await unified()
+            .use(remarkParse)
+            .use(remarkBreaks)
+            .use(remarkRehype)
+            .use(rehypeSanitize)
+            .use(rehypeStringify)
+            .process(markdownContent)
+        div.innerHTML = String(htmlContent);
+
+        return div.innerHTML;
     }
 
     // NOTE: これが必要かどうか

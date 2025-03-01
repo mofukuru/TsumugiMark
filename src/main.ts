@@ -1,12 +1,12 @@
 import { Plugin, Notice, setIcon, MarkdownView, WorkspaceLeaf } from "obsidian";
-import { VerticalEditorView } from "./VerticalEditorView";
+import { VerticalEditorView, VERTICAL_EDITOR_VIEW_TYPE } from "./verticaleditorview";
 import { SwitchView } from "./switchview";
 
 export default class VerticalEditorPlugin extends Plugin {
   async onload() {
     // register vertical editor view
     this.registerView(
-      "vertical-editor",
+      VERTICAL_EDITOR_VIEW_TYPE,
       (leaf) => new VerticalEditorView(leaf)
     );
 
@@ -15,7 +15,8 @@ export default class VerticalEditorPlugin extends Plugin {
       id: "open-vertical-editor",
       name: "open vertical editor",
       callback: () => {
-        this.fromMarkdownToVert();
+        const sv = new SwitchView(this.app);
+        sv.fromMarkdownToVert();
       },
       // id: "toggle-vertical-editor",
       // name: "Toggle Vertical Editor",
@@ -64,22 +65,18 @@ export default class VerticalEditorPlugin extends Plugin {
 
     this.registerEvent(this.app.workspace.on("active-leaf-change", (leaf) => {
       if (leaf && leaf.view instanceof MarkdownView) {
-        const header = leaf.view.containerEl.querySelector(".view-header");
-        if (header && !header.querySelector(".vertical-editor")) {
+        // const header = leaf.view.containerEl.querySelector(".view-header");
+        const header = leaf.view.containerEl.querySelector(".view-actions");
+        if (header && !header.querySelector(".vertical-editor-button")) {
           const btn = document.createElement("button");
-          btn.classList.add("clickable-icon", "vertical-editor");
+          btn.classList.add("clickable-icon", "vertical-editor-button");
           setIcon(btn, "notebook-text")
           btn.setAttribute("aria-label", "convert to vertical-editor")
           btn.addEventListener("click", () => {
-            let sv = new SwitchView(this.app);
+            const sv = new SwitchView(this.app);
             sv.fromMarkdownToVert();
           });
-          const titleContainer = header.querySelector(".view-header-title-container");
-          if (titleContainer) {
-            titleContainer.insertAdjacentElement("afterend", btn);
-          } else {
-            header.appendChild(btn);
-          }
+          header.insertAdjacentElement("afterbegin", btn);
         }
       }
     }));
@@ -89,7 +86,7 @@ export default class VerticalEditorPlugin extends Plugin {
       this.app.workspace.on("file-open", (file) => {
         if (file) {
           const leaves = this.app.workspace.getLeavesOfType(
-            "vertical-editor"
+            VERTICAL_EDITOR_VIEW_TYPE
           );
           leaves.forEach((leaf) => {
             const view = leaf.view as VerticalEditorView;
@@ -101,18 +98,6 @@ export default class VerticalEditorPlugin extends Plugin {
   }
 
   onunload() {
-    this.app.workspace.detachLeavesOfType("vertical-editor");
-  }
-
-  async fromMarkdownToVert() {
-    const activeFile = this.app.workspace.getActiveFile();
-    if (activeFile) {
-      this.app.workspace.getLeaf(true).setViewState({
-        type: "vertical-editor",
-        state: { file: activeFile.path },
-      });
-    } else {
-      new Notice("You have no active markdown file.");
-    }
+    this.app.workspace.detachLeavesOfType("VERTICAL_EDITOR_VIEW_TYPE");
   }
 }
