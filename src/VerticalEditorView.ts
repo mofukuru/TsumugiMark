@@ -6,6 +6,8 @@ export const VERTICAL_EDITOR_VIEW_TYPE = "vertical-editor";
 export class VerticalEditorView extends ItemView {
     file: TFile | null = null;
     editorDiv: HTMLDivElement; // editorDivへの参照を保持
+    private debounceTimer: number | null = null;
+    isSavingInternally: boolean = false;
 
     constructor(leaf: WorkspaceLeaf) {
         super(leaf);
@@ -95,6 +97,13 @@ export class VerticalEditorView extends ItemView {
         // 一般的な日本語フォントを指定（ユーザーの環境に合わせて調整が必要な場合あり）
         this.editorDiv.style.fontFamily = '游明朝, "Yu Mincho", YuMincho, "Hiragino Mincho ProN", "MS PMincho", serif';
 
+        const styleEl = document.createElement("style");
+        styleEl.textContent = `
+            .${VERTICAL_EDITOR_VIEW_TYPE} p {
+                margin: 0;
+            }
+        `;
+        this.containerEl.appendChild(styleEl);
         // console.log("VerticalEditorView: onOpen。初期のthis.file:", this.file?.path);
 
         // コンテンツの読み込みは主にsetStateによって処理されます。
@@ -110,21 +119,50 @@ export class VerticalEditorView extends ItemView {
 
         // エディタ内の変更を検知するイベントリスナー
         this.editorDiv.addEventListener("input", async () => {
-            if (this.file) {
-                const htmlContent = this.editorDiv.innerHTML;
-                // console.log(`VerticalEditorView: ${this.file.path} のコンテンツが変更されました。保存処理は現在コメントアウトされています。`);
-                // TODO: SwitchTextを使用してHTMLからMarkdownへの変換を実装し、保存する。
-                const sw = new SwitchText(this.app);
-                try {
-                    const markdownContent = await sw.fromHTMLToMarkdown(htmlContent);
-                    await this.app.vault.modify(this.file, markdownContent);
-                    new Notice("ファイルが保存されました。");
-                } catch (error) {
-                    new Notice("HTMLからMarkdownへの変換または保存中にエラーが発生しました。");
-                    // console.error("Error converting HTML to Markdown or saving:", error);
-                }
+            if (this.debounceTimer) {
+                clearTimeout(this.debounceTimer);
             }
+
+            this.debounceTimer = window.setTimeout(async () => {
+                if (this.file) {
+                    this.isSavingInternally = true;
+                    const htmlContent = this.editorDiv.innerHTML;
+                    // console.log(`VerticalEditorView: ${this.file.path} のコンテンツが変更されました。保存処理は現在コメントアウトされています。`);
+                    // TODO: SwitchTextを使用してHTMLからMarkdownへの変換を実装し、保存する。
+                    const sw = new SwitchText(this.app);
+                    try {
+                        const markdownContent = await sw.fromHTMLToMarkdown(htmlContent);
+                        await this.app.vault.modify(this.file, markdownContent);
+                        // new Notice("ファイルが保存されました。");
+                    } catch (error) {
+                        new Notice("HTMLからMarkdownへの変換または保存中にエラーが発生しました。");
+                        // console.error("Error converting HTML to Markdown or saving:", error);
+                    } finally {
+                        setTimeout(() => {
+                            this.isSavingInternally = false;
+                        }, 0);
+                    }
+                }
+        }, 1000);
         });
+    }
+
+    async saveContent() {
+        if (this.file) {
+            this.isSavingInternally = true;
+            const htmlContent = this.editorDiv.innerHTML;
+            const sw = new SwitchText(this.app);
+            try {
+                const markdownContent = await sw.fromHTMLToMarkdown(htmlContent);
+                await this.app.vault.modify(this.file, markdownContent);
+            } catch (error) {
+                new Notice("HTMLからMarkdownへの変換または保存中にエラーが発生しました。");
+            } finally {
+                setTimeout(() => {
+                    this.isSavingInternally = false;
+                }, 100);
+            }
+        }
     }
 
     // ファイルの内容をエディタに読み込むヘルパーメソッド

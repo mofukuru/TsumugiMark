@@ -567,3 +567,121 @@ import { TFile } from "obsidian"; // TFile を明示的にインポート
 まずは上記のフラグによる制御で、自己更新ループを断ち切ることから試してみてください。
 
 MEMO: このエラーはもともとmarkdownの内容がすぐに縦書きエディタに反映される機能をつけていないときには発生していなかった。
+
+# A3
+
+超高速でタイピングするとカーソルが飛ぶ問題が再発するとのこと、承知いたしました。これは、前回提案した `isSavingInternally` フラグと `setTimeout(..., 0)` を使った対策でも、非常に短い間隔での連続的な入力とファイル保存処理、そして `modify` イベントの連鎖のタイミングによっては、まだ競合が発生してしまう可能性があることを示唆しています。
+
+特に、超高速タイピング時は以下の状況が考えられます。
+
+1.  `input` イベントが非常に短い間隔で連続発生する。
+2.  `setTimeout(..., 0)` で `isSavingInternally` フラグを `false` に戻す処理がキューに入るが、その実行前に次の `input` イベントが処理を開始してしまう。
+3.  `this.app.vault.modify()` が非同期処理であり、完了するまでの時間も影響する。複数の `modify()` が実質的に並行して走るような状況に近い形になることも。
+4.  `main.ts` の `modify` イベントリスナーが、予期せぬタイミングで `isSavingInternally` が `false` になっている瞬間を捉えてしまい、`loadFileContent` を実行してしまう。
+
+この問題をより根本的に解決するためには、入力処理とファイル保存処理の頻度を適切に制御する「デバウンス（debounce）」または「スロットリング（throttling）」の導入を改めて検討するか、さらにフラグ管理を厳密にする必要があります。
+
+### 提案される対策
+
+#### 1\. デバウンス処理の強化・確実な導入
+
+前回の回答でも触れましたが、縦書きエディタの `input` イベントに対してデバウンス処理を導入し、ユーザーの入力が一定時間（例: 500ミリ秒～1秒程度）止まってからファイル保存処理 (`this.app.vault.modify`) を行うようにします。これにより、高速タイピング中にはファイル保存が頻繁に発生しなくなり、`modify` イベントの連鎖による競合のリスクを大幅に低減できます。
+
+**`verticaleditorview.ts` の `onOpen` 内のイベントリスナー部分の修正例:**
+
+```typescript
+// verticaleditorview.ts
+
+export class VerticalEditorView extends ItemView {
+    // ... (他のプロパティ) ...
+    private debounceTimer: number | null = null; // デバウンス用のタイマーID
+    isSavingInternally: boolean = false; // このフラグは引き続き使用
+
+    // ... (constructor, getViewType, etc.) ...
+
+    async onOpen(): Promise<void> {
+        // ... (既存のonOpenの初期化処理) ...
+
+        this.editorDiv.addEventListener("input", () => {
+            if (this.debounceTimer) {
+                clearTimeout(this.debounceTimer);
+            }
+
+            this.debounceTimer = window.setTimeout(async () => {
+                if (this.file) {
+                    // isSavingInternally をチェックして、既に保存処理が走っていたら何もしない
+                    // (デバウンスにより基本的には不要かもしれないが、念のため)
+                    if (this.isSavingInternally) {
+                        // console.log("VerticalEditorView: Debounced save called, but already saving. Skipping.");
+                        return;
+                    }
+
+                    this.isSavingInternally = true;
+                    // console.log("VerticalEditorView: Debounced save starting. isSavingInternally set to true.");
+                    const htmlContent = this.editorDiv.innerHTML;
+                    const sw = new SwitchText(this.app);
+                    try {
+                        const markdownContent = await sw.fromHTMLToMarkdown(htmlContent);
+                        await this.app.vault.modify(this.file, markdownContent);
+                        // new Notice("ファイルが保存されました。 (Debounced)");
+                    } catch (error) {
+                        new Notice("HTMLからMarkdownへの変換または保存中にエラーが発生しました。");
+                        // console.error("Error during debounced save:", error);
+                    } finally {
+                        // デバウンスされた保存処理が終わった後にフラグを解除
+                        // ここでの setTimeout は、main.ts 側の modify イベント処理との
+                        // タイミングを調整する意味合いが強いため、残すか、
+                        // あるいはデバウンス間隔が十分長ければ不要かもしれません。
+                        // まずは setTimeout なしで試してみて、問題があれば追加を検討します。
+                        this.isSavingInternally = false;
+                        // console.log("VerticalEditorView: Debounced save finished. isSavingInternally set to false.");
+
+                        // もし setTimeout を使う場合:
+                        // setTimeout(() => {
+                        //     this.isSavingInternally = false;
+                        //     console.log("VerticalEditorView: Debounced save finished. isSavingInternally set to false (delayed).");
+                        // }, 0);
+                    }
+                }
+            }, 1000); // 1000ミリ秒 (1秒) のデバウンス時間。この値は調整可能です。
+        });
+    }
+
+    // ... (loadFileContent や他のメソッドは前回提案のまま) ...
+}
+```
+
+**デバウンス処理のポイント:**
+
+  * `input` イベントが発生するたびにタイマーをリセットします。
+  * タイマーが指定時間（例: 1秒）経過するまで次の `input` イベントがなければ、実際に保存処理を実行します。
+  * `isSavingInternally` フラグは、デバウンスされた保存処理の開始から終了まで `true` にしておき、`main.ts` 側がその保存による `modify` イベントで `loadFileContent` を誤って呼び出さないようにします。
+  * デバウンス処理のコールバック内の `finally` ブロックで `isSavingInternally` を `false` に戻す際、`setTimeout(..., 0)` を使うかどうかは、デバウンス間隔の長さや実際の挙動を見ながら調整します。デバウンス間隔が十分にあれば、`main.ts` の `modify` イベントがフラグを正しく認識する時間が確保されるため、必須ではないかもしれません。
+
+#### 2\. `isSavingInternally` フラグの管理をさらに厳密にする（カウンター方式など）
+
+もしデバウンスだけでは不十分な場合（例えば、保存処理が非常に重く、デバウンス間隔中に完了しないことが稀にあるなど）、フラグを単純なブール値ではなく、カウンターにするなどの方法も考えられます。
+
+  * 保存処理を開始するたびにカウンターをインクリメント。
+  * 保存処理が完了するたびにカウンターをデクリメント。
+  * `main.ts` 側では、カウンターが `0` より大きい場合は `loadFileContent` をスキップする。
+
+これはより複雑になりますが、複数の非同期保存処理が重なった場合の制御には有効です。ただし、現状ではデバウンス処理の適切な導入で解決する可能性が高いと思われます。
+
+#### 3\. `loadFileContent` 時のカーソル位置保存・復元処理の試み（最終手段に近い）
+
+これは以前にも触れましたが、`loadFileContent` がどうしても呼び出されてしまう場合に、カーソル位置をできるだけ正確に保存し、`innerHTML` を書き換えた後に復元するというアプローチです。
+`contenteditable` 要素でこれを完璧に行うのは非常に難易度が高く、特に縦書きや複雑なDOM構造では困難を極めます。そのため、他の方法で `loadFileContent` の不必要な呼び出しを避けるのが優先です。
+
+### 推奨する次のステップ
+
+まずは、**デバウンス処理（上記1の提案）を確実に導入・調整する**ことをお勧めします。
+
+1.  `verticaleditorview.ts` の `input` イベントリスナーを上記のデバウンス処理に置き換えてください。
+2.  デバウンス時間（例では `1000` ミリ秒）を調整してみてください。短すぎると高速タイピング時に問題が再発しやすく、長すぎると保存の反映が遅く感じられるかもしれません。アプリケーションの特性に合わせて最適な値を見つける必要があります。
+3.  デバウンス処理内の `finally` ブロックで `isSavingInternally = false;` とする部分で、`setTimeout(..., 0)` を使うか使わないか、両方試して挙動を確認してください。
+4.  `main.ts` の `modify` イベントリスナー内の `if (!view.isSavingInternally)` のチェックは引き続き有効です。
+
+デバウンス処理により、高速タイピング中の一時的な編集中間状態でのファイル保存と `modify` イベントの発生が抑制され、ユーザーがタイピングを止めたタイミングでまとめて処理が行われるため、カーソルの飛びや処理の競合が大幅に改善されることが期待できます。
+
+もしデバウンス処理を導入しても問題が完全には解消しない場合は、その時の具体的な挙動や、`console.log` などで追跡したフラグや関数の呼び出し順序などを教えていただけると、さらに詳細な原因究明と対策の検討が可能です。
