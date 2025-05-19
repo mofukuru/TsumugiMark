@@ -1,4 +1,5 @@
-import { App, MarkdownView, Notice } from "obsidian";
+import { App, MarkdownView, Notice, WorkspaceLeaf } from "obsidian";
+import { VERTICAL_EDITOR_VIEW_TYPE } from "./verticaleditorview"; // VERTICAL_EDITOR_VIEW_TYPE をインポート
 
 export class SwitchView {
     private app: App;
@@ -7,60 +8,70 @@ export class SwitchView {
         this.app = app;
     }
 
-    // async fromMarkdownToVert() {
-    //     const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-    //     if (!view) return;
-
-    //     const leaf = view.leaf;
-    //     const activeFile = this.app.workspace.getActiveFile();
-
-    //     if (activeFile) {
-    //         leaf.setViewState({
-    //             type: "vertical-editor",
-    //             state: { file: activeFile.path },
-    //         });
-    //     } else {
-    //         new Notice("You have no active markdown file.");
-    //     }
-    // }
-
     async fromMarkdownToVert() {
         const activeFile = this.app.workspace.getActiveFile();
-        if (activeFile) {
-            this.app.workspace.getLeaf(true).setViewState({
-                type: "vertical-editor",
-                state: { file: activeFile.path },
+
+        if (!activeFile) {
+            new Notice("縦書きエディタで開くアクティブなマークダウンファイルがありません。");
+            return;
+        }
+
+        // 既存の縦書きエディタビューで同じファイルが開かれていないか確認する (オプション)
+        // より高度な実装では、既存のビューを探してアクティブ化することも検討できます。
+        // const existingLeaves = this.app.workspace.getLeavesOfType(VERTICAL_EDITOR_VIEW_TYPE);
+        // for (const leaf of existingLeaves) {
+        //     if (leaf.view instanceof VerticalEditorView && leaf.view.file?.path === activeFile.path) {
+        //         this.app.workspace.setActiveLeaf(leaf, { focus: true });
+        //         return;
+        //     }
+        // }
+
+        let leaf: WorkspaceLeaf | null = null;
+        // 新しいリーフを右側に分割して作成することを試みる
+        // 'split' 以外にも 'tab' (新しいタブ) や false (現在のリーフを置き換える) などが指定可能
+        try {
+            leaf = this.app.workspace.getLeaf('split', 'vertical'); // 'vertical' は分割方向
+        } catch (error) {
+            // console.error("リーフの取得に失敗しました:", error);
+            new Notice("縦書きエディタ用の表示領域を確保できませんでした。");
+            return;
+        }
+
+        if (leaf) {
+            await leaf.setViewState({
+                type: VERTICAL_EDITOR_VIEW_TYPE,
+                state: { file: activeFile.path }, // VerticalEditorView の setState に渡される state
+                active: true, // 新しいビューをアクティブにする
             });
+            this.app.workspace.revealLeaf(leaf); // リーフが表示されるようにする
         } else {
-            new Notice("You have no active markdown file.");
+            new Notice("縦書きエディタ用のリーフを作成または発見できませんでした。");
         }
     }
 
-    // getLeaf(true)にすると新しいタブとして開く
-    // async fromMarkdownToVert() {
-    //     const activeFile = this.app.workspace.getActiveFile();
-    //     const activeLeaf = this.app.workspace.getLeaf(false);
-
-    //     if (activeFile && activeLeaf) {
-    //         activeLeaf.setViewState({
-    //             type: "vertical-editor",
-    //             state: { file: activeFile.path },
-    //         });
-    //     } else {
-    //         new Notice("You have no active markdown file.");
-    //     }
-    // }
-
-    // 書き換える
+    // fromVertToMarkdown メソッドは、縦書きエディタから標準のMarkdownビューに戻す処理を記述します。
+    // このメソッドも同様に、対応するファイルを見つけてMarkdownビューとして開くロジックが必要です。
     async fromVertToMarkdown() {
-        const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-        if (view) {
-            const leaf = view.leaf;
+        // 現在アクティブなビューが VerticalEditorView かどうかを確認
+        const activeLeaf = this.app.workspace.activeLeaf;
+        if (activeLeaf && activeLeaf.view.getViewType() === VERTICAL_EDITOR_VIEW_TYPE) {
+            const verticalView = activeLeaf.view as any; // VerticalEditorView にキャスト (型安全のためには import してキャスト)
+            const fileToOpen = verticalView.file; // VerticalEditorView が保持しているファイル情報を取得
 
-            leaf.setViewState({
-                type: "markdown",
-                state: {},
-            });
+            if (fileToOpen) {
+                // 新しいリーフを取得するか、既存のリーフを再利用してMarkdownビューを開く
+                // ここでは、現在のリーフをMarkdownビューに置き換える例を示します。
+                await activeLeaf.setViewState({
+                    type: "markdown",
+                    state: { file: fileToOpen.path },
+                    active: true,
+                });
+                this.app.workspace.revealLeaf(activeLeaf);
+            } else {
+                new Notice("Markdownビューに戻すためのファイル情報が見つかりません。");
+            }
+        } else {
+            new Notice("アクティブなビューは縦書きエディタではありません。");
         }
     }
 }

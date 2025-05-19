@@ -1,4 +1,4 @@
-import { Plugin, Notice, setIcon, MarkdownView, WorkspaceLeaf } from "obsidian";
+import { Plugin, Notice, setIcon, MarkdownView, WorkspaceLeaf, TFile } from "obsidian";
 import { VerticalEditorView, VERTICAL_EDITOR_VIEW_TYPE } from "./verticaleditorview";
 import { SwitchView } from "./switchview";
 
@@ -80,6 +80,30 @@ export default class VerticalEditorPlugin extends Plugin {
         }
       }
     }));
+
+    // main.ts の VerticalEditorPlugin クラス内 onload メソッドに追加
+
+    this.registerEvent(
+      this.app.vault.on('modify', async (file) => {
+        // 変更されたファイルがTFileインスタンスであるか確認 (フォルダでないことを保証)
+        if (file instanceof TFile) {
+          // 現在開かれているすべての縦書きエディタのビューを取得
+          this.app.workspace.getLeavesOfType(VERTICAL_EDITOR_VIEW_TYPE).forEach(leaf => {
+            const view = leaf.view as VerticalEditorView; // ビューをVerticalEditorView型にキャスト
+
+            // 縦書きエディタでファイルが開かれており、かつ変更されたファイルと同じパスであるか確認
+            if (view.file && view.file.path === file.path) {
+              // new Notice(`Markdown側の変更を検知: ${file.basename} を再読み込みします。`); // デバッグ用通知
+
+              // VerticalEditorView にあるファイル内容を再読み込みするメソッドを呼び出す
+              // view.loadFileContent(file) を呼び出すことで、
+              // Markdownファイルから最新の内容を読み込み、HTMLに変換して縦書きエディタに表示します。
+              view.loadFileContent(file);
+            }
+          });
+        }
+      })
+    );
 
     // delete view when finish plugin
     this.registerEvent(
