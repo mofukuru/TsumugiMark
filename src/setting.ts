@@ -100,20 +100,6 @@ export class VerticalEditorSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettingsAndUpdateViews();
                 }));
 
-        // 一行の最大幅の設定
-        new Setting(containerEl)
-            .setName('Max Width')
-            .setDesc('縦書きエディタの一行の最大幅を設定します。これにより一行の文字数を調整できます。(例: 500px, 30em, auto)')
-            .addText(text => text
-                .setPlaceholder(DEFAULT_SETTINGS.maxHeight)
-                .setValue(this.plugin.settings.maxHeight)
-                .onChange(async (value) => {
-                    if (DEFAULT_SETTINGS.charsPerColumn === "auto") {
-                        this.plugin.settings.maxHeight = value;
-                        await this.plugin.saveSettingsAndUpdateViews();
-                    }
-                }));
-
         // 一行の最大幅（文字数）の設定
         new Setting(containerEl)
             .setName('Characters per Column')
@@ -161,5 +147,21 @@ export class VerticalEditorSettingTab extends PluginSettingTab {
                     }
                     await this.plugin.saveSettingsAndUpdateViews();
             }));
+
+        containerEl.createEl('h2', { text: 'Advanced' });
+        // 一行の最大幅の設定
+        new Setting(containerEl)
+            .setName('Max Width')
+            .setDesc('縦書きエディタの一行の最大幅を設定します。これにより一行の文字数を調整できます。(例: 500px, 30em, auto)')
+            .addText(text => text
+                .setPlaceholder(DEFAULT_SETTINGS.maxHeight)
+                .setValue(this.plugin.settings.maxHeight)
+                .onChange(async (value) => {
+                    if (DEFAULT_SETTINGS.charsPerColumn === "auto") {
+                        this.plugin.settings.maxHeight = value;
+                        await this.plugin.saveSettingsAndUpdateViews();
+                    }
+                }));
+
     }
 }

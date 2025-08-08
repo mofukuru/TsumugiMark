@@ -19,8 +19,8 @@ export class ViewRenderer {
         this.editorDiv.style.lineHeight = this.settings.lineHeight || DEFAULT_SETTINGS.lineHeight;
         this.editorDiv.style.letterSpacing = this.settings.letterSpacing || DEFAULT_SETTINGS.letterSpacing;
         this.editorDiv.style.height = this.settings.maxHeight || DEFAULT_SETTINGS.maxHeight;
-        this.editorDiv.style.lineBreak = "strict";
-        this.editorDiv.style.wordBreak = 'keep-all';
+        // this.editorDiv.style.lineBreak = "strict";
+        // this.editorDiv.style.wordBreak = 'keep-all';
     }
 
     displayEmptyMessage(message: string): void {
