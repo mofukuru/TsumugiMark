@@ -1,5 +1,5 @@
 import { ItemView, WorkspaceLeaf, TFile } from "obsidian";
-import { SwitchText } from "../src/switchtext";
+import { SwitchText } from "../src/switchText";
 
 export class VerticalEditorView extends ItemView {
     file: TFile | null = null;

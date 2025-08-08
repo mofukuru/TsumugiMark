@@ -1,13 +1,24 @@
 import { Plugin, Notice, setIcon, MarkdownView, WorkspaceLeaf, TFile } from "obsidian";
-import { VerticalEditorView, VERTICAL_EDITOR_VIEW_TYPE } from "./verticaleditorview";
-import { SwitchView } from "./switchview";
+import { VerticalEditorView, VERTICAL_EDITOR_VIEW_TYPE } from "./verticalEditorView";
+import { SwitchView } from "./switchView";
+import {VerticalEditorSettingTab, VerticalEditorSettings, DEFAULT_SETTINGS} from "./setting";
 
 export default class VerticalEditorPlugin extends Plugin {
+  settings: VerticalEditorSettings;
+  statusBarItemEl: HTMLElement;
+
   async onload() {
+    await this.loadSettings();
+
+    this.addSettingTab(new VerticalEditorSettingTab(this.app, this));
+
+    this.statusBarItemEl = this.addStatusBarItem();
+    this.clearCharacterCount();
+
     // register vertical editor view
     this.registerView(
       VERTICAL_EDITOR_VIEW_TYPE,
-      (leaf) => new VerticalEditorView(leaf)
+      (leaf) => new VerticalEditorView(leaf, this.settings, this)
     );
 
     // command to open vertical editor
@@ -18,52 +29,11 @@ export default class VerticalEditorPlugin extends Plugin {
         const sv = new SwitchView(this.app);
         sv.fromMarkdownToVert();
       },
-      // id: "toggle-vertical-editor",
-      // name: "Toggle Vertical Editor",
-      // callback: () => {
-      //   const activeLeaf = this.app.workspace.activeLeaf;
-      //   if (activeLeaf) {
-      //     const view = activeLeaf.view;
-
-      //     // Check if the current view is a Markdown view
-      //     if (view.getViewType() === "markdown") {
-      //       const activeFile = this.app.workspace.getActiveFile();
-      //       if (activeFile) {
-      //         // Switch to vertical editor view
-      //         // activeLeaf.setViewState({
-      //         //   type: VERTICAL_EDITOR_VIEW_TYPE,
-      //         //   state: { file: activeFile.path },
-      //         // });
-      //         this.app.workspace.getLeaf(true).setViewState({
-      //           type: VERTICAL_EDITOR_VIEW_TYPE,
-      //           state: { file: activeFile.path },
-      //         });
-      //       } else {
-      //         new Notice("No active markdown file.");
-      //       }
-      //     } else if (view.getViewType() === VERTICAL_EDITOR_VIEW_TYPE) {
-      //       // Switch back to markdown view
-      //       const file = (view as VerticalEditorView).file;
-      //       if (file) {
-      //         activeLeaf.setViewState({
-      //           type: "markdown",
-      //           state: { file: file.path },
-      //         });
-      //       } else {
-      //         new Notice("Unable to switch back to markdown view.");
-      //       }
-      //     }
-      //   } else {
-      //     new Notice("No active workspace leaf.");
-      //   }
-      // },
     });
 
-    // this.addRibbonIcon("dice", "My Button", (evt: MouseEvent) => {
-    //   new Notice("ボタンがクリックされました！");
-    // });
-
     this.registerEvent(this.app.workspace.on("active-leaf-change", (leaf) => {
+      const activeView = leaf?.view;
+
       if (leaf && leaf.view instanceof MarkdownView) {
         // const header = leaf.view.containerEl.querySelector(".view-header");
         const header = leaf.view.containerEl.querySelector(".view-actions");
@@ -78,6 +48,15 @@ export default class VerticalEditorPlugin extends Plugin {
           });
           header.insertAdjacentElement("afterbegin", btn);
         }
+      }
+
+      if (activeView && activeView.getViewType() === VERTICAL_EDITOR_VIEW_TYPE) {
+        const verticalView = activeView as VerticalEditorView;
+        if (typeof verticalView.refreshStatusBar === 'function') {
+          verticalView.refreshStatusBar();
+        }
+      } else {
+        this.clearCharacterCount();
       }
     }));
 
@@ -105,23 +84,41 @@ export default class VerticalEditorPlugin extends Plugin {
       })
     );
 
-    // delete view when finish plugin
-    // this.registerEvent(
-    //   this.app.workspace.on("file-open", (file) => {
-    //     if (file) {
-    //       const leaves = this.app.workspace.getLeavesOfType(
-    //         VERTICAL_EDITOR_VIEW_TYPE
-    //       );
-    //       leaves.forEach((leaf) => {
-    //         const view = leaf.view as VerticalEditorView;
-    //         view.file = file;
-    //       });
-    //     }
-    //   })
-    // );
+  }
+
+  async loadSettings() {
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+  }
+
+  async saveSettingsAndUpdateViews() {
+    await this.saveData(this.settings);
+    this.app.workspace.getLeavesOfType(VERTICAL_EDITOR_VIEW_TYPE).forEach(leaf => {
+      if (leaf.view instanceof VerticalEditorView) {
+        leaf.view.updateSettings(this.settings);
+      }
+    });
   }
 
   onunload() {
     this.app.workspace.detachLeavesOfType("VERTICAL_EDITOR_VIEW_TYPE");
+    this.clearCharacterCount();
+  }
+
+  updateCharacterCount(count: number) {
+    if (this.statusBarItemEl) {
+      if (count > 0) {
+        this.statusBarItemEl.setText(`文字数: ${count}`);
+      } else {
+        this.statusBarItemEl.setText('');
+      }
+    }
+  }
+
+  clearCharacterCount() {
+    if (this.statusBarItemEl) {
+      if (this.statusBarItemEl) {
+        this.statusBarItemEl.setText('');
+      }
+    }
   }
 }

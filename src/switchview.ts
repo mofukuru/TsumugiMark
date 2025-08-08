@@ -1,5 +1,5 @@
 import { App, MarkdownView, Notice, WorkspaceLeaf } from "obsidian";
-import { VERTICAL_EDITOR_VIEW_TYPE } from "./verticaleditorview"; // VERTICAL_EDITOR_VIEW_TYPE をインポート
+import { VERTICAL_EDITOR_VIEW_TYPE } from "./verticalEditorView"; // VERTICAL_EDITOR_VIEW_TYPE をインポート
 
 export class SwitchView {
     private app: App;
@@ -52,21 +52,22 @@ export class SwitchView {
     // fromVertToMarkdown メソッドは、縦書きエディタから標準のMarkdownビューに戻す処理を記述します。
     // このメソッドも同様に、対応するファイルを見つけてMarkdownビューとして開くロジックが必要です。
     async fromVertToMarkdown() {
-        // 現在アクティブなビューが VerticalEditorView かどうかを確認
-        const activeLeaf = this.app.workspace.activeLeaf;
-        if (activeLeaf && activeLeaf.view.getViewType() === VERTICAL_EDITOR_VIEW_TYPE) {
-            const verticalView = activeLeaf.view as any; // VerticalEditorView にキャスト (型安全のためには import してキャスト)
+        // 現在アクティブなリーフを取得
+        const currentLeaf = this.app.workspace.getLeaf();
+
+        if (currentLeaf && currentLeaf.view.getViewType() === VERTICAL_EDITOR_VIEW_TYPE) {
+            const verticalView = currentLeaf.view as any; // VerticalEditorView にキャスト (型安全のためには import してキャスト)
             const fileToOpen = verticalView.file; // VerticalEditorView が保持しているファイル情報を取得
 
             if (fileToOpen) {
                 // 新しいリーフを取得するか、既存のリーフを再利用してMarkdownビューを開く
                 // ここでは、現在のリーフをMarkdownビューに置き換える例を示します。
-                await activeLeaf.setViewState({
+                await currentLeaf.setViewState({
                     type: "markdown",
-                    state: { file: fileToOpen.path },
+                    state: { file: fileToOpen.path, mode: "source" }, // ソースモードで開く
                     active: true,
                 });
-                this.app.workspace.revealLeaf(activeLeaf);
+                this.app.workspace.revealLeaf(currentLeaf);
             } else {
                 new Notice("Markdownビューに戻すためのファイル情報が見つかりません。");
             }
