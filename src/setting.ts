@@ -1,6 +1,8 @@
 import {App, PluginSettingTab, Setting} from 'obsidian';
 import VerticalEditorPlugin from "./main";
 
+export type CharCountMode = 'includeSpaces' | 'excludeSpaces';
+
 // 設定項目のインターフェースを定義
 export interface VerticalEditorSettings {
     fontFamily: string;
@@ -9,6 +11,7 @@ export interface VerticalEditorSettings {
     letterSpacing: string; // 文字間隔の設定を追加
     maxHeight: string; // 一行の最大文字数（または幅）の設定を追加
     charsPerColumn: string;
+    charCountMode: CharCountMode;
 }
 
 // 設定のデフォルト値を定義
@@ -19,6 +22,7 @@ export const DEFAULT_SETTINGS: VerticalEditorSettings = {
     letterSpacing: '0', // デフォルトの文字間隔
     maxHeight: 'auto', // デフォルトの最大幅（自動）
     charsPerColumn: 'auto',
+    charCountMode: 'includeSpaces',
 };
 
 // 設定タブを管理するクラス
@@ -34,7 +38,19 @@ export class VerticalEditorSettingTab extends PluginSettingTab {
         const { containerEl } = this;
 
         containerEl.empty(); // 設定画面をクリア
-        containerEl.createEl('h2', { text: 'Vertical Editor Settings' });
+        containerEl.createEl('h2', { text: 'TsumugiMark Settings' });
+
+        new Setting(containerEl)
+            .setName('Character Count Mode')
+            .setDesc('文字数カウントのモードを選択します。')
+            .addDropdown(dropdown => dropdown
+                .addOption('includeSpaces', '空白を含める')
+                .addOption('excludeSpaces', '空白を含めない')
+                .setValue(this.plugin.settings.charCountMode)
+                .onChange(async (value: CharCountMode) => {
+                    this.plugin.settings.charCountMode = value;
+                    await this.plugin.saveSettingsAndUpdateViews();
+                }));
 
         // フォントファミリー設定
         new Setting(containerEl)

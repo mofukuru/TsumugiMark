@@ -1,6 +1,6 @@
 {
-	"id": "vertical-editor",
-	"name": "Vertical Editor",
+	"id": "tsumugi-mark",
+	"name": "TsumugiMark",
 	"version": "0.0.1",
 	"minAppVersion": "0.15.0",
 	"description": "vertical editor for Japanese writer.",

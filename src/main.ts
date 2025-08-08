@@ -1,6 +1,6 @@
 import { Plugin, Notice, setIcon, MarkdownView, WorkspaceLeaf, TFile } from "obsidian";
-import { VerticalEditorView, VERTICAL_EDITOR_VIEW_TYPE } from "./verticalEditorView";
-import { SwitchView } from "./switchView";
+import { VerticalEditorView, VERTICAL_EDITOR_VIEW_TYPE } from "./VerticalEditorView";
+import { SwitchView } from "./SwitchView";
 import {VerticalEditorSettingTab, VerticalEditorSettings, DEFAULT_SETTINGS} from "./setting";
 
 export default class VerticalEditorPlugin extends Plugin {
@@ -104,10 +104,12 @@ export default class VerticalEditorPlugin extends Plugin {
     this.clearCharacterCount();
   }
 
-  updateCharacterCount(count: number) {
+  updateCharacterCount(totalCount: number, selectionCount?: number) {
     if (this.statusBarItemEl) {
-      if (count > 0) {
-        this.statusBarItemEl.setText(`文字数: ${count}`);
+      if (selectionCount && selectionCount > 0) {
+        this.statusBarItemEl.setText(`選択: ${selectionCount} / 全体: ${totalCount}`);
+      } else if (totalCount > 0) {
+        this.statusBarItemEl.setText(`文字数: ${totalCount}`);
       } else {
         this.statusBarItemEl.setText('');
       }

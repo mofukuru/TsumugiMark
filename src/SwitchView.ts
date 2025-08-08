@@ -1,5 +1,5 @@
 import { App, MarkdownView, Notice, WorkspaceLeaf } from "obsidian";
-import { VERTICAL_EDITOR_VIEW_TYPE } from "./verticalEditorView"; // VERTICAL_EDITOR_VIEW_TYPE をインポート
+import { VERTICAL_EDITOR_VIEW_TYPE } from "./VerticalEditorView"; // VERTICAL_EDITOR_VIEW_TYPE をインポート
 
 export class SwitchView {
     private app: App;
