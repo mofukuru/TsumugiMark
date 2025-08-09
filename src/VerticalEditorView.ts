@@ -43,26 +43,11 @@ export class VerticalEditorView extends ItemView {
     async onOpen(): Promise<void> {
         const container = this.containerEl.children[1] as HTMLElement;
         container.empty();
-        container.addClass(VERTICAL_EDITOR_VIEW_TYPE + "-container");
-        container.style.display = "grid";
+        container.addClass(VERTICAL_EDITOR_VIEW_TYPE + "-container", "vertical-editor-grid-container");
 
         this.editorDiv = container.createDiv({ cls: VERTICAL_EDITOR_VIEW_TYPE });
         this.editorDiv.contentEditable = "true";
-        this.editorDiv.style.writingMode = "vertical-rl";
-        this.editorDiv.style.padding = "20px";
-        this.editorDiv.style.outline = "none";
-        this.editorDiv.style.contain = "layout style paint";
-
-        const styleEl = document.createElement("style");
-        styleEl.textContent = `
-            .${VERTICAL_EDITOR_VIEW_TYPE} p {
-                margin: 0;
-            }
-            .${VERTICAL_EDITOR_VIEW_TYPE} h1, .${VERTICAL_EDITOR_VIEW_TYPE} h2, .${VERTICAL_EDITOR_VIEW_TYPE} h3, .${VERTICAL_EDITOR_VIEW_TYPE} h4, .${VERTICAL_EDITOR_VIEW_TYPE} h5, .${VERTICAL_EDITOR_VIEW_TYPE} h6 {
-                margin: 0;
-            }
-        `;
-        this.containerEl.appendChild(styleEl);
+        this.editorDiv.addClass('vertical-editor-view');
 
         this.fileManager = new FileManager(this.app);
         this.viewRenderer = new ViewRenderer(this.editorDiv, this.settings, this.plugin);

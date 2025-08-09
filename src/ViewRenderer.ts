@@ -14,18 +14,17 @@ export class ViewRenderer {
 
     applyStyles(): void {
         if (!this.editorDiv) return;
-        this.editorDiv.style.fontFamily = this.settings.fontFamily || DEFAULT_SETTINGS.fontFamily;
-        this.editorDiv.style.fontSize = this.settings.fontSize || DEFAULT_SETTINGS.fontSize;
-        this.editorDiv.style.lineHeight = this.settings.lineHeight || DEFAULT_SETTINGS.lineHeight;
-        this.editorDiv.style.letterSpacing = this.settings.letterSpacing || DEFAULT_SETTINGS.letterSpacing;
-        this.editorDiv.style.height = this.settings.maxHeight || DEFAULT_SETTINGS.maxHeight;
-        // this.editorDiv.style.lineBreak = "strict";
-        // this.editorDiv.style.wordBreak = 'keep-all';
+        this.editorDiv.style.setProperty('--vertical-editor-font-family', this.settings.fontFamily || DEFAULT_SETTINGS.fontFamily);
+        this.editorDiv.style.setProperty('--vertical-editor-font-size', this.settings.fontSize || DEFAULT_SETTINGS.fontSize);
+        this.editorDiv.style.setProperty('--vertical-editor-line-height', this.settings.lineHeight || DEFAULT_SETTINGS.lineHeight);
+        this.editorDiv.style.setProperty('--vertical-editor-letter-spacing', this.settings.letterSpacing || DEFAULT_SETTINGS.letterSpacing);
+        this.editorDiv.style.setProperty('--vertical-editor-max-height', this.settings.maxHeight || DEFAULT_SETTINGS.maxHeight);
     }
 
     displayEmptyMessage(message: string): void {
         if (this.editorDiv) {
-            this.editorDiv.innerHTML = `<div style="writing-mode: horizontal-tb; text-align: center; color: grey; padding-top: 50px;">${message}</div>`;
+            this.editorDiv.empty();
+            this.editorDiv.createDiv({ cls: 'vertical-editor-message', text: message });
             this.applyStyles();
         }
         this.plugin.clearCharacterCount();

@@ -100,7 +100,6 @@ export default class VerticalEditorPlugin extends Plugin {
   }
 
   onunload() {
-    this.app.workspace.detachLeavesOfType("VERTICAL_EDITOR_VIEW_TYPE");
     this.clearCharacterCount();
   }
 

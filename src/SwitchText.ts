@@ -49,7 +49,7 @@ export class SwitchText {
             replacement: (content: string, node: Node) => {
                 const element = node as HTMLElement;
                 const rt = element.querySelector('rt');
-                const rtText = rt ? rt.innerHTML : '';
+                const rtText = rt ? rt.textContent || '' : '';
                 const temp = element.cloneNode(true) as HTMLElement;
                 temp.querySelectorAll('rt, rp').forEach(child => child.remove());
                 const baseText = temp.textContent || '';

@@ -1,8 +1,34 @@
-/*
+.vertical-editor-view {
+  writing-mode: vertical-rl;
+  padding: 20px;
+  outline: none;
+  contain: layout style paint;
+  font-family: var(--vertical-editor-font-family, 'serif');
+  font-size: var(--vertical-editor-font-size, 16px);
+  line-height: var(--vertical-editor-line-height, 1.8);
+  letter-spacing: var(--vertical-editor-letter-spacing, 0.1em);
+  height: var(--vertical-editor-max-height, 1500px);
+  /* line-break: strict; */
+  /* word-break: keep-all; */
+}
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
+.vertical-editor-message {
+  writing-mode: horizontal-tb;
+  text-align: center;
+  color: var(--text-muted); /* Obsidianのテーマ変数を利用 */
+  padding-top: 50px;
+}
 
-If your plugin does not need CSS, delete this file.
+.vertical-editor-grid-container {
+  display: grid;
+}
 
-*/
+.vertical-editor-view p,
+.vertical-editor-view h1,
+.vertical-editor-view h2,
+.vertical-editor-view h3,
+.vertical-editor-view h4,
+.vertical-editor-view h5,
+.vertical-editor-view h6 {
+  margin: 0;
+}

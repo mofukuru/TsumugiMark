@@ -42,7 +42,11 @@ export class FileManager {
 
             requestAnimationFrame(() => {
                 editorDiv.empty();
-                editorDiv.innerHTML = htmlContent;
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlContent, "text/html");
+                Array.from(doc.body.childNodes).forEach(node => {
+                    editorDiv.appendChild(node);
+                });
                 renderer.applyStyles();
                 requestAnimationFrame(() => {
                     editorDiv.scrollTop = scrollTop;
