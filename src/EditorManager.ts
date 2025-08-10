@@ -38,7 +38,7 @@ export class EditorManager {
 
     private onFocusOut = () => {
         if (this.file) {
-            this.fileManager.saveContent(this.file, this.editorDiv.innerHTML);
+                        this.fileManager.saveContent(this.file, this.editorDiv);
         }
     };
 

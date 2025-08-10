@@ -10,13 +10,13 @@ export class FileManager {
         this.app = app;
     }
 
-    async saveContent(file: TFile, htmlContent: string): Promise<void> {
+    async saveContent(file: TFile, editorDiv: HTMLDivElement): Promise<void> {
         if (this.isSavingInternally) return;
 
         this.isSavingInternally = true;
         const sw = new SwitchText(this.app);
         try {
-            const markdownContent = await sw.fromHTMLToMarkdown(htmlContent);
+            const markdownContent = await sw.fromHTMLToMarkdown(editorDiv);
             await this.app.vault.modify(file, markdownContent);
         } catch (error) {
             new Notice("HTMLからMarkdownへの変換または保存中にエラーが発生しました。");

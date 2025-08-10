@@ -118,7 +118,7 @@ export class VerticalEditorView extends ItemView {
     async onClose(): Promise<void> {
         this.editorManager.removeEventListeners();
         if (this.file) {
-            await this.fileManager.saveContent(this.file, this.editorDiv.innerHTML);
+                        await this.fileManager.saveContent(this.file, this.editorDiv);
         }
     }
 }

@@ -65,7 +65,7 @@ export class SwitchText {
         return this.marked.parse(markdownContent) as string;
     }
 
-    async fromHTMLToMarkdown(htmlContent: string): Promise<string> {
+        async fromHTMLToMarkdown(htmlContent: string | HTMLElement): Promise<string> {
         return this.turndownService.turndown(htmlContent);
     }
 }
