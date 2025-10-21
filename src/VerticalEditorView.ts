@@ -4,8 +4,14 @@ import VerticalEditorPlugin from "./main";
 import { FileManager } from "./FileManager";
 import { ViewRenderer } from "./ViewRenderer";
 import { EditorManager } from "./EditorManager";
+import { t } from "./localization";
 
 export const VERTICAL_EDITOR_VIEW_TYPE = "vertical-editor";
+
+interface VerticalEditorViewState {
+    [key: string]: unknown;
+    file?: string;
+}
 
 export class VerticalEditorView extends ItemView {
     file: TFile | null = null;
@@ -33,7 +39,7 @@ export class VerticalEditorView extends ItemView {
     }
 
     getDisplayText(): string {
-        return this.file ? this.file.basename : "縦書きエディタ";
+        return this.file ? this.file.basename : t("Vertical Editor");
     }
 
     getIcon(): string {
@@ -59,12 +65,12 @@ export class VerticalEditorView extends ItemView {
         if (this.file) {
             this.loadFileContent(this.file);
         } else {
-            this.viewRenderer.displayEmptyMessage("ファイルを読み込み中...");
+            this.viewRenderer.displayEmptyMessage(t("Loading file..."));
         }
     }
 
-    async setState(state: any, result: ViewStateResult): Promise<void> {
-        const filePath = state?.file;
+    async setState(state: VerticalEditorViewState, result: ViewStateResult): Promise<void> {
+        const filePath = state?.file as string;
         let fileChanged = false;
 
         if (filePath && typeof filePath === 'string') {
@@ -85,16 +91,15 @@ export class VerticalEditorView extends ItemView {
             if (this.file) {
                 await this.loadFileContent(this.file);
             } else {
-                this.viewRenderer.displayEmptyMessage("ファイルが指定されていません。");
+                this.viewRenderer.displayEmptyMessage(t("No file specified."));
             }
         }
         this.refreshStatusBar();
     }
 
-    getState(): any {
+    getState(): VerticalEditorViewState {
         return { file: this.file?.path };
     }
-
     updateSettings(newSettings: VerticalEditorSettings): void {
         this.settings = newSettings;
         this.viewRenderer.updateSettings(newSettings);

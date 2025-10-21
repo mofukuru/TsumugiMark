@@ -1,6 +1,7 @@
 import { App, TFile, Notice } from "obsidian";
 import { SwitchText } from "./SwitchText";
 import { ViewRenderer } from "./ViewRenderer";
+import { t } from "./localization";
 
 export class FileManager {
     private app: App;
@@ -19,9 +20,9 @@ export class FileManager {
             const markdownContent = await sw.fromHTMLToMarkdown(editorDiv);
             await this.app.vault.modify(file, markdownContent);
         } catch (error) {
-            new Notice("HTMLからMarkdownへの変換または保存中にエラーが発生しました。");
+            new Notice(t("Error during conversion from HTML to Markdown or saving."));
         } finally {
-            setTimeout(() => {
+            window.setTimeout(() => {
                 this.isSavingInternally = false;
             }, 100);
         }
@@ -54,7 +55,7 @@ export class FileManager {
                 });
             });
         } catch (error) {
-            renderer.displayEmptyMessage(`ファイル「${fileToLoad.basename}」の読み込みに失敗しました。`);
+            renderer.displayEmptyMessage(t('Failed to load file "%1".', fileToLoad.basename));
         }
     }
 }

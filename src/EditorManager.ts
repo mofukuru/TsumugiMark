@@ -18,13 +18,11 @@ export class EditorManager {
     }
 
     setupEventListeners() {
-        this.editorDiv.addEventListener("focusout", this.onFocusOut);
-        document.addEventListener("selectionchange", this.onSelectionChange);
+        this.plugin.registerDomEvent(this.editorDiv, "focusout", this.onFocusOut);
+        this.plugin.registerDomEvent(document, "selectionchange", this.onSelectionChange);
     }
 
     removeEventListeners() {
-        this.editorDiv.removeEventListener("focusout", this.onFocusOut);
-        document.removeEventListener("selectionchange", this.onSelectionChange);
     }
 
     setFile(file: TFile | null) {

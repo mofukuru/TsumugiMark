@@ -2,6 +2,7 @@ import { Plugin, Notice, setIcon, MarkdownView, WorkspaceLeaf, TFile } from "obs
 import { VerticalEditorView, VERTICAL_EDITOR_VIEW_TYPE } from "./VerticalEditorView";
 import { SwitchView } from "./SwitchView";
 import {VerticalEditorSettingTab, VerticalEditorSettings, DEFAULT_SETTINGS} from "./setting";
+import { t } from "./localization";
 
 export default class VerticalEditorPlugin extends Plugin {
   settings: VerticalEditorSettings;
@@ -24,7 +25,7 @@ export default class VerticalEditorPlugin extends Plugin {
     // command to open vertical editor
     this.addCommand({
       id: "open-vertical-editor",
-      name: "open vertical editor",
+      name: t("open vertical editor"),
       callback: () => {
         const sv = new SwitchView(this.app);
         sv.fromMarkdownToVert();
@@ -38,15 +39,15 @@ export default class VerticalEditorPlugin extends Plugin {
         // const header = leaf.view.containerEl.querySelector(".view-header");
         const header = leaf.view.containerEl.querySelector(".view-actions");
         if (header && !header.querySelector(".vertical-editor-button")) {
-          const btn = document.createElement("button");
+          const btn = (header as HTMLElement).createEl("button");
           btn.classList.add("clickable-icon", "vertical-editor-button");
           setIcon(btn, "notebook-text")
-          btn.setAttribute("aria-label", "convert to vertical-editor")
+          btn.setAttribute("aria-label", t("convert to vertical-editor"))
           btn.addEventListener("click", () => {
             const sv = new SwitchView(this.app);
             sv.fromMarkdownToVert();
           });
-          header.insertAdjacentElement("afterbegin", btn);
+          header.prepend(btn);
         }
       }
 
@@ -106,9 +107,9 @@ export default class VerticalEditorPlugin extends Plugin {
   updateCharacterCount(totalCount: number, selectionCount?: number) {
     if (this.statusBarItemEl) {
       if (selectionCount && selectionCount > 0) {
-        this.statusBarItemEl.setText(`選択: ${selectionCount} / 全体: ${totalCount}`);
+        this.statusBarItemEl.setText(t('Selected: %1 / Total: %2', String(selectionCount), String(totalCount)));
       } else if (totalCount > 0) {
-        this.statusBarItemEl.setText(`文字数: ${totalCount}`);
+        this.statusBarItemEl.setText(t('Characters: %1', String(totalCount)));
       } else {
         this.statusBarItemEl.setText('');
       }

@@ -1,26 +1,25 @@
 # TsumugiMark
 
-TsumugiMarkは、Obsidianのための縦書き編集プラグインです。標準のマークダウンエディタを、小説や脚本などの執筆に適した縦書き表示に切り替えることができます。
+TsumugiMark is a vertical writing plugin for Obsidian. It allows you to switch the standard Markdown editor to a vertical display, suitable for writing novels, screenplays, and other Japanese texts.
 
-## 主な機能（注意：簡易版・レビュー版なので機能が安定しておりません）
+## Key Features (Note: This is a beta version, and features may not be stable)
 
-- **縦書き表示**: アクティブなマークダウンファイルを、縦書きレイアウトの別ペインで開きます。
-- **ライブプレビュー**: 標準エディタでの変更が、リアルタイムで縦書きビューに反映されます。
-- **縦書きのまま編集**: 縦書きビューで直接テキストを編集し、変更をファイルに保存できます。
-- **ルビ記法**: `｜漢字《かんじ》` 形式のルビ記法をサポートします。
-- **文字数カウント**: ステータスバーに文書全体の文字数を表示します。テキストを選択すると、選択範囲の文字数も表示されます。
-<!-- - **禁則処理**: 簡易的な禁則処理により、より自然な改行を実現します。 -->
-- **カスタマイズ**: 設定画面から、フォントファミリー、フォントサイズ、行間、文字数カウントの方法などを自由に調整できます。
+- **Vertical Writing View**: Opens the active Markdown file in a separate pane with a vertical layout.
+- **Live Preview**: Changes in the standard editor are reflected in the vertical view in real-time.
+- **Edit in Vertical View**: You can directly edit text in the vertical view and save changes to the file.
+- **Ruby Character Support**: Supports ruby characters (furigana) using the `|Kanji《kanji》` format.
+- **Character Count**: Displays the total character count of the document in the status bar. When you select text, it also shows the character count of the selection.
+- **Customization**: You can freely adjust the font family, font size, line spacing, and character counting method from the settings screen.
 
-**使用する際は必ずテストを行ってから使用してください、既存のファイルを用いて編集を行うとマークダウンエディタのレイアウトが崩れる場合がございます**
+**Please be sure to test before use. Editing existing files may disrupt the layout of the Markdown editor.**
 
-## インストール方法
+## How to Install
 
-1.  Obsidianのコミュニティプラグインから「TsumugiMark」をインストールし、有効化します。
-2.  編集したいマークダウンファイルを開きます。
-3.  エディタの右上にあるリボンアイコン（ノートとペンのアイコン）をクリックするか、コマンドパレットから `TsumugiMark: open vertical editor` を実行します。
-4.  画面が分割され、右側に縦書きエディタが表示されます。
+1.  Install and enable "TsumugiMark" from the community plugins in Obsidian.
+2.  Open the Markdown file you want to edit.
+3.  Click the ribbon icon (a note and pen icon) in the upper right corner of the editor, or run `TsumugiMark: open vertical editor` from the command palette.
+4.  The screen will be split, and the vertical editor will be displayed on the right side.
 
-## ライセンス
+## License
 
-このプラグインは、[MITライセンス](LICENSE)の下で公開されています。
+This plugin is released under the [MIT License](LICENSE).

@@ -1,6 +1,6 @@
 import { App } from "obsidian";
 import TurndownService from "turndown";
-import { Marked } from 'marked';
+import { Marked, Tokens } from 'marked';
 
 const rubyExtension = {
     name: 'ruby',
@@ -23,8 +23,10 @@ const rubyExtension = {
             return token;
         }
     },
-    renderer(token: any) {
-        return `<ruby>${this.parser.parseInline(token.base)}<rt>${this.parser.parseInline(token.ruby)}</rt></ruby>`;
+    renderer(token: Tokens.Generic) {
+        const base = token.base as Tokens.Generic[];
+        const ruby = token.ruby as Tokens.Generic[];
+        return `<ruby>${this.parser.parseInline(base)}<rt>${this.parser.parseInline(ruby)}</rt></ruby>`;
     }
 };
 
