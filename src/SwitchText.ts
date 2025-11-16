@@ -9,7 +9,7 @@ const rubyExtension = {
         return src.indexOf('《');
     },
     tokenizer(src: string) {
-        const rule = /^(?:[\|｜](.+?)|([一-龠]+))《(.+?)》/;
+        const rule = /^(?:[|｜](.+?)|([一-龠]+))《(.+?)》/;
         const match = rule.exec(src);
         if (match) {
             const baseText = match[1] || match[2];
@@ -63,11 +63,11 @@ export class SwitchText {
         this.marked.use({ extensions: [rubyExtension] });
     }
 
-    async fromMarkdownToHTML(markdownContent: string): Promise<string> {
-        return this.marked.parse(markdownContent) as string;
+    fromMarkdownToHTML(markdownContent: string): Promise<string> {
+        return this.marked.parse(markdownContent) as Promise<string>;
     }
 
-        async fromHTMLToMarkdown(htmlContent: string | HTMLElement): Promise<string> {
+        fromHTMLToMarkdown(htmlContent: string | HTMLElement): string {
         return this.turndownService.turndown(htmlContent);
     }
 }

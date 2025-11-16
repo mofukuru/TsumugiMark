@@ -56,7 +56,7 @@ export class SwitchView {
         const currentLeaf = this.app.workspace.getLeaf();
 
         if (currentLeaf && currentLeaf.view.getViewType() === VERTICAL_EDITOR_VIEW_TYPE) {
-            const verticalView = currentLeaf.view as VerticalEditorView; // VerticalEditorView にキャスト (型安全のためには import してキャスト)
+            const verticalView = currentLeaf.view as unknown as VerticalEditorView; // VerticalEditorView にキャスト (型安全のためには import してキャスト)
             const fileToOpen = verticalView.file; // VerticalEditorView が保持しているファイル情報を取得
 
             if (fileToOpen) {

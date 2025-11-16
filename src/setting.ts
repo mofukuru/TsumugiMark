@@ -41,7 +41,7 @@ export class VerticalEditorSettingTab extends PluginSettingTab {
         containerEl.empty(); // 設定画面をクリア
 
         new Setting(containerEl)
-            .setName(t('Character Count Mode'))
+            .setName(t('Character count mode'))
             .setDesc(t('Select character count mode.'))
             .addDropdown(dropdown => dropdown
                 .addOption('includeSpaces', t('Include spaces'))
@@ -54,7 +54,7 @@ export class VerticalEditorSettingTab extends PluginSettingTab {
 
         // フォントファミリー設定
         new Setting(containerEl)
-            .setName(t('Font Family'))
+            .setName(t('Font family'))
             .setDesc(t('Set the font family for the vertical editor. (e.g., "Yu Mincho", "MS PMincho", serif)'))
             .addText(text => text
                 .setPlaceholder(DEFAULT_SETTINGS.fontFamily)
@@ -66,7 +66,7 @@ export class VerticalEditorSettingTab extends PluginSettingTab {
 
         // フォントサイズ設定
         new Setting(containerEl)
-            .setName(t('Font Size'))
+            .setName(t('Font size'))
             .setDesc(t('Set the font size for the vertical editor. (e.g., 18px, 1.2em)'))
             .addText(text => text
                 .setPlaceholder(DEFAULT_SETTINGS.fontSize)
@@ -78,7 +78,7 @@ export class VerticalEditorSettingTab extends PluginSettingTab {
 
         // 行間の設定
         new Setting(containerEl)
-            .setName(t('Line Height'))
+            .setName(t('Line height'))
             .setDesc(t('Set the line height for the vertical editor. (e.g., 1.8, 2)'))
             .addText(text => text
                 .setPlaceholder(DEFAULT_SETTINGS.lineHeight)
@@ -90,7 +90,7 @@ export class VerticalEditorSettingTab extends PluginSettingTab {
 
         // 文字間の設定
         new Setting(containerEl)
-            .setName(t('Letter Spacing'))
+            .setName(t('Letter spacing'))
             .setDesc(t('Set the letter spacing for the vertical editor. (e.g., 0px, 0.1em)'))
             .addText(text => text
                 .setPlaceholder(DEFAULT_SETTINGS.letterSpacing)
@@ -102,7 +102,7 @@ export class VerticalEditorSettingTab extends PluginSettingTab {
 
         // 一行の最大幅（文字数）の設定
         new Setting(containerEl)
-            .setName(t('Characters per Column'))
+            .setName(t('Characters per column'))
             .setDesc(t('Set the number of characters per line in the vertical editor. If the specified number of characters is not met, adjust with the "Max Width" setting.'))
             .addText(text => text
                 .setPlaceholder(DEFAULT_SETTINGS.charsPerColumn)
@@ -151,7 +151,7 @@ export class VerticalEditorSettingTab extends PluginSettingTab {
         new Setting(containerEl).setName(t('Advanced')).setHeading();
         // 一行の最大幅の設定
         new Setting(containerEl)
-            .setName(t('Max Width'))
+            .setName(t('Max width'))
             .setDesc(t('Set the max width of a line in the vertical editor. This allows you to adjust the number of characters per line. (e.g., 500px, 30em, auto)'))
             .addText(text => text
                 .setPlaceholder(DEFAULT_SETTINGS.maxHeight)

@@ -36,7 +36,7 @@ export class EditorManager {
 
     private onFocusOut = () => {
         if (this.file) {
-                        this.fileManager.saveContent(this.file, this.editorDiv);
+                        void this.fileManager.saveContent(this.file, this.editorDiv);
         }
     };
 
@@ -61,7 +61,7 @@ export class EditorManager {
             let text = '';
             const walker = document.createTreeWalker(this.editorDiv, NodeFilter.SHOW_TEXT, null);
             let node;
-            while (node = walker.nextNode()) {
+            while ((node = walker.nextNode())) {
                 if (node.parentElement && (node.parentElement.tagName === 'RT' || node.parentElement.tagName === 'RP')) {
                     continue;
                 }

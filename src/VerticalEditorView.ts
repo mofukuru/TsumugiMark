@@ -16,7 +16,7 @@ interface VerticalEditorViewState {
 export class VerticalEditorView extends ItemView {
     file: TFile | null = null;
     editorDiv: HTMLDivElement;
-    
+
     private settings: VerticalEditorSettings;
     private plugin: VerticalEditorPlugin;
 

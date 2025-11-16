@@ -5,7 +5,7 @@ import { t } from "./localization";
 
 export class FileManager {
     private app: App;
-    public isSavingInternally: boolean = false;
+    public isSavingInternally = false;
 
     constructor(app: App) {
         this.app = app;
@@ -17,9 +17,9 @@ export class FileManager {
         this.isSavingInternally = true;
         const sw = new SwitchText(this.app);
         try {
-            const markdownContent = await sw.fromHTMLToMarkdown(editorDiv);
+            const markdownContent = sw.fromHTMLToMarkdown(editorDiv);
             await this.app.vault.modify(file, markdownContent);
-        } catch (error) {
+        } catch (_error) {
             new Notice(t("Error during conversion from HTML to Markdown or saving."));
         } finally {
             window.setTimeout(() => {
@@ -54,7 +54,7 @@ export class FileManager {
                     editorDiv.scrollLeft = scrollLeft;
                 });
             });
-        } catch (error) {
+        } catch (_error) {
             renderer.displayEmptyMessage(t('Failed to load file "%1".', fileToLoad.basename));
         }
     }

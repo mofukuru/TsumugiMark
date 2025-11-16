@@ -1,4 +1,4 @@
-import { Plugin, Notice, setIcon, MarkdownView, WorkspaceLeaf, TFile } from "obsidian";
+import { Plugin, setIcon, MarkdownView, TFile } from "obsidian";
 import { VerticalEditorView, VERTICAL_EDITOR_VIEW_TYPE } from "./VerticalEditorView";
 import { SwitchView } from "./SwitchView";
 import {VerticalEditorSettingTab, VerticalEditorSettings, DEFAULT_SETTINGS} from "./setting";
@@ -52,7 +52,7 @@ export default class VerticalEditorPlugin extends Plugin {
       }
 
       if (activeView && activeView.getViewType() === VERTICAL_EDITOR_VIEW_TYPE) {
-        const verticalView = activeView as VerticalEditorView;
+        const verticalView = activeView as unknown as VerticalEditorView;
         if (typeof verticalView.refreshStatusBar === 'function') {
           verticalView.refreshStatusBar();
         }
@@ -68,7 +68,7 @@ export default class VerticalEditorPlugin extends Plugin {
         if (file instanceof TFile) {
           // 現在開かれているすべての縦書きエディタのビューを取得
           this.app.workspace.getLeavesOfType(VERTICAL_EDITOR_VIEW_TYPE).forEach(leaf => {
-            const view = leaf.view as VerticalEditorView; // ビューをVerticalEditorView型にキャスト
+            const view = leaf.view as unknown as VerticalEditorView; // ビューをVerticalEditorView型にキャスト
 
             // 縦書きエディタでファイルが開かれており、かつ変更されたファイルと同じパスであるか確認
             if (view.file && view.file.path === file.path) {

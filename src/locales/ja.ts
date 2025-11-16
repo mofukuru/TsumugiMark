@@ -22,7 +22,7 @@ export default {
   'open vertical editor': '縦書きエディタを開く',
   'convert to vertical-editor': '縦書きエディタに変換',
   'Error during conversion from HTML to Markdown or saving.': 'HTMLからMarkdownへの変換または保存中にエラーが発生しました。',
-  'Failed to load file \"%1\".': 'ファイル「%1」の読み込みに失敗しました。',
+  'Failed to load file "%1".': 'ファイル「%1」の読み込みに失敗しました。',
   'Vertical Editor': '縦書きエディタ',
   'Loading file...': 'ファイルを読み込み中...',
   'No file specified.': 'ファイルが指定されていません。'
