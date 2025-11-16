@@ -1,6 +1,6 @@
 {
 	"name": "tsumugi-mark",
-	"version": "1.0.2",
+	"version": "1.0.0",
 	"description": "vertical editor for Japanese writer.",
 	"main": "main.js",
 	"scripts": {
