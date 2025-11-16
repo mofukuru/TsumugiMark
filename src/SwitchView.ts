@@ -43,7 +43,7 @@ export class SwitchView {
                 state: { file: activeFile.path }, // VerticalEditorView の setState に渡される state
                 active: true, // 新しいビューをアクティブにする
             });
-            this.app.workspace.revealLeaf(leaf); // リーフが表示されるようにする
+            void this.app.workspace.revealLeaf(leaf); // リーフが表示されるようにする
         } else {
             new Notice("縦書きエディタ用のリーフを作成または発見できませんでした。");
         }
@@ -67,7 +67,7 @@ export class SwitchView {
                     state: { file: fileToOpen.path, mode: "source" }, // ソースモードで開く
                     active: true,
                 });
-                this.app.workspace.revealLeaf(currentLeaf);
+                void this.app.workspace.revealLeaf(currentLeaf);
             } else {
                 new Notice("Markdownビューに戻すためのファイル情報が見つかりません。");
             }

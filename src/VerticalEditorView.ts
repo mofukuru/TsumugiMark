@@ -63,7 +63,7 @@ export class VerticalEditorView extends ItemView {
         this.viewRenderer.applyStyles();
 
         if (this.file) {
-            this.loadFileContent(this.file);
+            await this.loadFileContent(this.file);
         } else {
             this.viewRenderer.displayEmptyMessage(t("Loading file..."));
         }

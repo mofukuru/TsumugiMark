@@ -28,7 +28,7 @@ export default class VerticalEditorPlugin extends Plugin {
       name: t("open vertical editor"),
       callback: () => {
         const sv = new SwitchView(this.app);
-        sv.fromMarkdownToVert();
+        void sv.fromMarkdownToVert();
       },
     });
 
@@ -45,7 +45,7 @@ export default class VerticalEditorPlugin extends Plugin {
           btn.setAttribute("aria-label", t("convert to vertical-editor"))
           btn.addEventListener("click", () => {
             const sv = new SwitchView(this.app);
-            sv.fromMarkdownToVert();
+            void sv.fromMarkdownToVert();
           });
           header.prepend(btn);
         }
@@ -63,7 +63,7 @@ export default class VerticalEditorPlugin extends Plugin {
 
     // main.ts の VerticalEditorPlugin クラス内 onload メソッドに追加
     this.registerEvent(
-      this.app.vault.on('modify', async (file) => {
+      this.app.vault.on('modify', (file) => {
         // 変更されたファイルがTFileインスタンスであるか確認 (フォルダでないことを保証)
         if (file instanceof TFile) {
           // 現在開かれているすべての縦書きエディタのビューを取得
@@ -77,7 +77,7 @@ export default class VerticalEditorPlugin extends Plugin {
               // VerticalEditorView にあるファイル内容を再読み込みするメソッドを呼び出す
               // view.loadFileContent(file) を呼び出すことで、
               // Markdownファイルから最新の内容を読み込み、HTMLに変換して縦書きエディタに表示します。
-                view.loadFileContent(file);
+                void view.loadFileContent(file);
               }
             }
           });
