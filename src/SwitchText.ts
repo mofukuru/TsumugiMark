@@ -6,10 +6,18 @@ const rubyExtension = {
     name: 'ruby',
     level: 'inline' as const,
     start(src: string) {
-        return src.indexOf('《');
+        // Look for pipe characters first
+        const pipeMatch = src.search(/[|｜]/);
+        if (pipeMatch !== -1) return pipeMatch;
+
+        // Look for kanji followed by 《 (auto-detect case)
+        const kanjiMatch = src.match(/[一-龠々]+(?=《)/);
+        if (kanjiMatch) return src.indexOf(kanjiMatch[0]);
+
+        return -1;
     },
     tokenizer(src: string) {
-        const rule = /^(?:[|｜](.+?)|([一-龠]+))《(.+?)》/;
+        const rule = /^(?:[|｜](.+?)|([一-龠々]+))《(.+?)》/;
         const match = rule.exec(src);
         if (match) {
             const baseText = match[1] || match[2];
