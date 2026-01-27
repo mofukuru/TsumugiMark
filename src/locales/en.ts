@@ -15,6 +15,8 @@ export default {
   'Set the letter spacing for the vertical editor. (e.g., 0px, 0.1em)': 'Set the letter spacing for the vertical editor. (e.g., 0px, 0.1em)',
   'Characters per column': 'Characters per column',
   'Set the number of characters per line in the vertical editor. If the specified number of characters is not met, adjust with the "Max width" setting.': 'Set the number of characters per line in the vertical editor. If the specified number of characters is not met, adjust with the "max width" setting.',
+  'Enable automatic paragraph indentation': 'Enable automatic paragraph indentation',
+  'Automatically indent the first line of each paragraph (novel style).': 'Automatically indent the first line of each paragraph (novel style).',
   'Max width': 'Max width',
   'Set the max width of a line in the vertical editor. This allows you to adjust the number of characters per line. (e.g., 500px, 30em, auto)': 'Set the max width of a line in the vertical editor. This allows you to adjust the number of characters per line (e.g., 500px, 30em, auto).',
   'Selected: %1 / Total: %2': 'Selected: %1 / total: %2',

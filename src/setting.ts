@@ -13,6 +13,7 @@ export interface VerticalEditorSettings {
     maxHeight: string; // 一行の最大文字数（または幅）の設定を追加
     charsPerColumn: string;
     charCountMode: CharCountMode;
+    enableAutoIndent: boolean; // 段落の自動字下げ
 }
 
 // 設定のデフォルト値を定義
@@ -24,6 +25,7 @@ export const DEFAULT_SETTINGS: VerticalEditorSettings = {
     maxHeight: 'auto', // デフォルトの最大幅（自動）
     charsPerColumn: 'auto',
     charCountMode: 'includeSpaces',
+    enableAutoIndent: true, // デフォルトは字下げあり
 };
 
 // 設定タブを管理するクラス
@@ -103,7 +105,7 @@ export class VerticalEditorSettingTab extends PluginSettingTab {
         // 一行の最大幅（文字数）の設定
         new Setting(containerEl)
             .setName(t('Characters per column'))
-            .setDesc(t('Set the number of characters per line in the vertical editor. If the specified number of characters is not met, adjust with the "Max Width" setting.'))
+            .setDesc(t('Set the number of characters per line in the vertical editor. If the specified number of characters is not met, adjust with the "Max width" setting.'))
             .addText(text => text
                 .setPlaceholder(DEFAULT_SETTINGS.charsPerColumn)
                 .setValue(this.plugin.settings.charsPerColumn)
@@ -149,6 +151,18 @@ export class VerticalEditorSettingTab extends PluginSettingTab {
             }));
 
         new Setting(containerEl).setName(t('Advanced')).setHeading();
+
+        // 自動字下げの設定
+        new Setting(containerEl)
+            .setName(t('Enable automatic paragraph indentation'))
+            .setDesc(t('Automatically indent the first line of each paragraph (novel style).'))
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.enableAutoIndent)
+                .onChange(async (value) => {
+                    this.plugin.settings.enableAutoIndent = value;
+                    await this.plugin.saveSettingsAndUpdateViews();
+                }));
+
         // 一行の最大幅の設定
         new Setting(containerEl)
             .setName(t('Max width'))

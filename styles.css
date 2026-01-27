@@ -12,6 +12,14 @@
   /* word-break: keep-all; */
 }
 
+/* 縦中横：半角英数字を横向きのままテキストフローに埋め込む */
+.vertical-editor-view code,
+.vertical-editor-view kbd,
+.vertical-editor-view var {
+  text-orientation: upright;
+  text-combine-upright: digits 2; /* 2桁までの数字を一単位として横並び */
+}
+
 .vertical-editor-message {
   writing-mode: horizontal-tb;
   text-align: center;
@@ -23,7 +31,39 @@
   display: grid;
 }
 
-.vertical-editor-view p,
+.vertical-editor-view p {
+  margin: 0;
+  padding: 0;
+  text-indent: 0; /* 明示的にリセット */
+  /* 縦書きで空行が潰れないように最低1文字分の幅を確保 */
+  min-width: 1em;
+  min-height: 1em;
+  /* 論理プロパティで確実にブロック方向のサイズを確保 */
+  min-block-size: 1.5em;
+  /* 縦書きのインライン方向（横方向）のサイズも確保 */
+  min-inline-size: 1em;
+}
+
+/* 自動字下げが有効な場合のみ字下げを適用 */
+.vertical-editor-view.auto-indent-enabled p {
+  text-indent: 1em;
+}
+
+/* 中身が<br>だけの段落でも幅を確保する */
+.vertical-editor-view p > br:only-child {
+  display: inline-block;
+  width: 1em;
+  height: 1.5em;
+  content: '\00a0';
+}
+
+/* br要素全般の処理を強化 */
+.vertical-editor-view p br {
+  display: inline-block;
+  min-width: 0.5em;
+  min-height: 1em;
+}
+
 .vertical-editor-view h1,
 .vertical-editor-view h2,
 .vertical-editor-view h3,
@@ -31,4 +71,49 @@
 .vertical-editor-view h5,
 .vertical-editor-view h6 {
   margin: 0;
+  text-indent: 0; /* 見出しは字下げしない */
+  /* 見出しは天（上）に余白を追加して階層を表現 */
+  margin-block-start: 1em;
+}
+
+/* 見出しのレベルに応じてサイズと余白を調整 */
+.vertical-editor-view h1 {
+  font-size: 1.8em;
+  margin-block-start: 1.5em;
+  margin-block-end: 0.5em;
+}
+
+.vertical-editor-view h2 {
+  font-size: 1.5em;
+  margin-block-start: 1.2em;
+  margin-block-end: 0.3em;
+}
+
+.vertical-editor-view h3 {
+  font-size: 1.2em;
+  margin-block-start: 0.8em;
+}
+
+/* 改行（br）は字下げをリセット */
+.vertical-editor-view br {
+  display: block;
+  content: '';
+}
+
+/* 傍点（圏点）：strong要素を圏点で強調 */
+.vertical-editor-view strong,
+.vertical-editor-view b {
+  text-emphasis-style: filled dot; /* 黒丸圏点（・） */
+  text-emphasis-color: currentColor;
+  text-emphasis-position: right;
+  font-weight: normal; /* HTMLの太字を圏点に置換するため、fontweightは通常に */
+}
+
+/* em要素（イタリック）を縦書きで見やすく */
+.vertical-editor-view em,
+.vertical-editor-view i {
+  font-style: normal; /* 縦書きでイタリックは美しくないため無効化 */
+  text-emphasis-style: sesame; /* 胡麻点（﹅） */
+  text-emphasis-color: currentColor;
+  text-emphasis-position: right;
 }

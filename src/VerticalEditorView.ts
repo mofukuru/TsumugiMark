@@ -23,6 +23,7 @@ export class VerticalEditorView extends ItemView {
     private fileManager: FileManager;
     private viewRenderer: ViewRenderer;
     private editorManager: EditorManager;
+    private fileModifyEventRef: (() => void) | null = null;
 
     get isSavingInternally(): boolean {
         return this.fileManager.isSavingInternally;
@@ -59,8 +60,12 @@ export class VerticalEditorView extends ItemView {
         this.viewRenderer = new ViewRenderer(this.editorDiv, this.settings, this.plugin);
         this.editorManager = new EditorManager(this.editorDiv, this.plugin, this.fileManager, this.settings);
 
-        this.editorManager.setupEventListeners();
         this.viewRenderer.applyStyles();
+
+        // DOMに接続された後でイベントリスナーを設定
+        await new Promise(resolve => setTimeout(resolve, 0));
+        this.editorManager.setupEventListeners();
+        this.setupFileWatcher();
 
         if (this.file) {
             await this.loadFileContent(this.file);
@@ -111,6 +116,9 @@ export class VerticalEditorView extends ItemView {
 
     async loadFileContent(fileToLoad: TFile): Promise<void> {
         await this.fileManager.loadFileContent(fileToLoad, this.editorDiv, this.viewRenderer);
+        if (this.editorManager) {
+            this.editorManager.resetDirty();
+        }
         this.refreshStatusBar();
     }
 
@@ -120,10 +128,39 @@ export class VerticalEditorView extends ItemView {
         }
     }
 
+    private setupFileWatcher(): void {
+        // 既存の監視を解除
+        if (this.fileModifyEventRef) {
+            this.app.vault.offref(this.fileModifyEventRef);
+            this.fileModifyEventRef = null;
+        }
+
+        // ファイル変更を監視
+        this.fileModifyEventRef = this.app.vault.on('modify', async (modifiedFile) => {
+            // 現在のファイルが変更された場合
+            if (this.file && modifiedFile.path === this.file.path) {
+                // 内部保存中は無視（無限ループ防止）
+                if (this.fileManager.isSavingInternally) {
+                    return;
+                }
+                // 外部変更を検出したので、リロード
+                await this.loadFileContent(this.file);
+            }
+        });
+    }
+
     async onClose(): Promise<void> {
+        // イベント監視を解除
+        if (this.fileModifyEventRef) {
+            this.app.vault.offref(this.fileModifyEventRef);
+            this.fileModifyEventRef = null;
+        }
+
         this.editorManager.removeEventListeners();
-        if (this.file) {
-                        await this.fileManager.saveContent(this.file, this.editorDiv);
+
+        // 実際に編集があった場合のみ保存
+        if (this.file && this.editorManager.getDirty()) {
+            await this.fileManager.saveContent(this.file, this.editorDiv);
         }
     }
 }

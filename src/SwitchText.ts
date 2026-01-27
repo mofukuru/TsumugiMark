@@ -10,14 +10,14 @@ const rubyExtension = {
         const pipeMatch = src.search(/[|｜]/);
         if (pipeMatch !== -1) return pipeMatch;
 
-        // Look for kanji followed by 《 (auto-detect case)
-        const kanjiMatch = src.match(/[一-龠々]+(?=《)/);
-        if (kanjiMatch) return src.indexOf(kanjiMatch[0]);
+        // Look for Japanese characters followed by 《 (auto-detect case)
+        const japaneseMatch = src.match(/[一-龠々〆ヵヶぁ-ゔゞゝヽヾァ-ヴー]+(?=《)/);
+        if (japaneseMatch) return src.indexOf(japaneseMatch[0]);
 
         return -1;
     },
     tokenizer(src: string) {
-        const rule = /^(?:[|｜](.+?)|([一-龠々]+))《(.+?)》/;
+        const rule = /^(?:[|｜](.+?)|([一-龠々〆ヵヶぁ-ゔゞゝヽヾァ-ヴー]+))《(.+?)》/;
         const match = rule.exec(src);
         if (match) {
             const baseText = match[1] || match[2];
@@ -52,6 +52,17 @@ export class SwitchText {
             bulletListMarker: '-',
             codeBlockStyle: 'fenced',
             emDelimiter: '_',
+            strongDelimiter: '**',
+            linkStyle: 'inlined',
+            linkReferenceStyle: 'full',
+            preformattedCode: true,
+            blankReplacement: (content: string, node: Node) => {
+                // 空要素は空白行として保持
+                if ((node as HTMLElement).tagName === 'P') {
+                    return '\n\n';
+                }
+                return '';
+            }
         });
 
         this.turndownService.addRule('ruby', {
@@ -67,12 +78,64 @@ export class SwitchText {
             }
         });
 
+        // 段落内の<br>を行末スペース2つに変換（優先度高）
+        this.turndownService.addRule('lineBreak', {
+            filter: (node: Node) => {
+                if (node.nodeName !== 'BR') return false;
+                const parent = node.parentElement;
+                // 段落内の<br>で、かつ他にテキストがある場合
+                if (parent && parent.tagName === 'P') {
+                    const siblings = Array.from(parent.childNodes);
+                    const hasOtherContent = siblings.some(n =>
+                        n !== node && (n.nodeType === Node.TEXT_NODE && n.textContent?.trim() || n.nodeType === Node.ELEMENT_NODE)
+                    );
+                    return hasOtherContent;
+                }
+                return false;
+            },
+            replacement: () => '  \n'
+        });
+
+        // ve-empty-line を空行として処理（1要素につき \n\n = 1段落）
+        this.turndownService.addRule('veEmptyLine', {
+            filter: (node: Node) => {
+                if (!(node instanceof HTMLElement)) return false;
+                return node.classList && node.classList.contains('ve-empty-line');
+            },
+            replacement: () => '\n\n'
+        });
+
+        // 空段落（<p><br></p>のみ）を空行として保持（ve-empty-line は除外）
+        this.turndownService.addRule('emptyParagraph', {
+            filter: (node: Node) => {
+                if (!(node instanceof HTMLElement)) return false;
+                if (node.tagName !== 'P') return false;
+                if (node.classList && node.classList.contains('ve-empty-line')) return false;
+                const children = Array.from(node.childNodes);
+                // <br>だけ、または完全に空の段落
+                const hasOnlyBr = children.length === 1 && children[0].nodeName === 'BR';
+                const isEmpty = children.length === 0 || (node.textContent?.trim() === '');
+                return hasOnlyBr || isEmpty;
+            },
+            replacement: () => '\n\n'
+        });
+
         this.marked = new Marked();
-        this.marked.use({ extensions: [rubyExtension] });
+        this.marked.use({
+            extensions: [rubyExtension],
+            breaks: true, // 段落内の改行を<br>として保持
+            gfm: true     // GitHub Flavored Markdown
+        });
     }
 
-    fromMarkdownToHTML(markdownContent: string): Promise<string> {
-        return this.marked.parse(markdownContent) as Promise<string>;
+    async fromMarkdownToHTML(markdownContent: string): Promise<string> {
+        let html = await this.marked.parse(markdownContent) as string;
+
+        // 空の段落パターンを検出して <br> を挿入
+        // <p>\s*</p> → <p><br></p>
+        html = html.replace(/<p>\s*<\/p>/g, '<p><br></p>');
+
+        return html;
     }
 
         fromHTMLToMarkdown(htmlContent: string | HTMLElement): string {
