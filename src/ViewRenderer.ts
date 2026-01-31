@@ -19,6 +19,13 @@ export class ViewRenderer {
         this.editorDiv.style.setProperty('--vertical-editor-line-height', this.settings.lineHeight || DEFAULT_SETTINGS.lineHeight);
         this.editorDiv.style.setProperty('--vertical-editor-letter-spacing', this.settings.letterSpacing || DEFAULT_SETTINGS.letterSpacing);
         this.editorDiv.style.setProperty('--vertical-editor-max-height', this.settings.maxHeight || DEFAULT_SETTINGS.maxHeight);
+
+        // 自動字下げの設定に応じてクラスを切り替え
+        if (this.settings.enableAutoIndent) {
+            this.editorDiv.addClass('auto-indent-enabled');
+        } else {
+            this.editorDiv.removeClass('auto-indent-enabled');
+        }
     }
 
     displayEmptyMessage(message: string): void {

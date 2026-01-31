@@ -1,4 +1,4 @@
-import { App, Notice, WorkspaceLeaf } from "obsidian";
+import { App, MarkdownView, Notice, WorkspaceLeaf } from "obsidian";
 import { VERTICAL_EDITOR_VIEW_TYPE, VerticalEditorView } from "./VerticalEditorView"; // VERTICAL_EDITOR_VIEW_TYPE をインポート
 
 export class SwitchView {
@@ -40,7 +40,9 @@ export class SwitchView {
         if (leaf) {
             await leaf.setViewState({
                 type: VERTICAL_EDITOR_VIEW_TYPE,
-                state: { file: activeFile.path }, // VerticalEditorView の setState に渡される state
+                state: {
+                    file: activeFile.path
+                }, // VerticalEditorView の setState に渡される state
                 active: true, // 新しいビューをアクティブにする
             });
             void this.app.workspace.revealLeaf(leaf); // リーフが表示されるようにする
