@@ -121,18 +121,47 @@ export class SwitchText {
         });
 
         this.marked = new Marked();
+        
+        // レンダラーをカスタマイズして、改行を強制的に <br> に変換する
+        const renderer = {
+            text(token: Tokens.Text): string {
+                // テキストトークン内の改行コード(\n)を、無条件で <br> に置換する
+                // これにより breaks: true が効かないケースでも強制改行させる
+                if ('tokens' in token && token.tokens) {
+                    return this.parser.parseInline(token.tokens);
+                }
+                return token.text.replace(/\n/g, '<br>');
+            }
+        };
+        
         this.marked.use({
             extensions: [rubyExtension],
+            renderer: renderer as any,
             breaks: true, // 段落内の改行を<br>として保持
             gfm: true     // GitHub Flavored Markdown
         });
     }
 
     async fromMarkdownToHTML(markdownContent: string): Promise<string> {
-        let html = await this.marked.parse(markdownContent) as string;
+        // 1. 改行コードを \n (LF) に統一する (Windows/CRLF対策)
+        const normalizedContent = markdownContent.replace(/\r\n/g, '\n');
 
-        // 空の段落パターンを検出して <br> を挿入
-        // <p>\s*</p> → <p><br></p>
+        // 2. 2つ以上の連続改行を検出し、空行要素に置換する
+        // ユーザーの見た目基準: Enter を N 回押した = N-1 行の空き
+        // \n\n (2つ) = Enter 2回 = 1行分の空き
+        // \n\n\n (3つ) = Enter 3回 = 2行分の空き
+        const preProcessedContent = normalizedContent.replace(/\n{2,}/g, (match) => {
+            // 計算式: match.length - 1 (見た目通りの行数)
+            const count = match.length - 1;
+            const emptyLineStr = '<p class="ve-empty-line"><br></p>';
+            
+            // 前後に \n\n を挟むことで、marked が前後のテキストを正しく段落として認識できるようにする
+            return '\n\n' + emptyLineStr.repeat(count) + '\n\n';
+        });
+
+        let html = await this.marked.parse(preProcessedContent) as string;
+
+        // 既存処理: 空の段落パターンを検出して <br> を挿入
         html = html.replace(/<p>\s*<\/p>/g, '<p><br></p>');
 
         return html;

@@ -57,11 +57,12 @@
   content: '\00a0';
 }
 
-/* br要素全般の処理を強化 */
-.vertical-editor-view p br {
-  display: inline-block;
-  min-width: 0.5em;
-  min-height: 1em;
+/* ve-empty-line（空行）の統一表示 */
+.vertical-editor-view p.ve-empty-line {
+  min-height: 1.5em;
+  min-width: 1em;
+  margin: 0;
+  padding: 0;
 }
 
 .vertical-editor-view h1,

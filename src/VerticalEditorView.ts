@@ -23,7 +23,7 @@ export class VerticalEditorView extends ItemView {
     private fileManager: FileManager;
     private viewRenderer: ViewRenderer;
     private editorManager: EditorManager;
-    private fileModifyEventRef: (() => void) | null = null;
+    private fileModifyEventRef: any = null;
 
     get isSavingInternally(): boolean {
         return this.fileManager.isSavingInternally;
@@ -140,7 +140,7 @@ export class VerticalEditorView extends ItemView {
             // 現在のファイルが変更された場合
             if (this.file && modifiedFile.path === this.file.path) {
                 // 内部保存中は無視（無限ループ防止）
-                if (this.fileManager.isSavingInternally) {
+                if (this.fileManager.shouldIgnoreExternalModify()) {
                     return;
                 }
                 // 外部変更を検出したので、リロード
