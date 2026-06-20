@@ -5,8 +5,9 @@ import {VerticalEditorSettingTab, VerticalEditorSettings, DEFAULT_SETTINGS} from
 import { t } from "./localization";
 
 export default class VerticalEditorPlugin extends Plugin {
-  settings: VerticalEditorSettings;
-  statusBarItemEl: HTMLElement;
+  settings!: VerticalEditorSettings;
+  statusBarItemEl!: HTMLElement;
+  private isAutoOpening = false;
 
   async onload() {
     await this.loadSettings();
@@ -60,6 +61,41 @@ export default class VerticalEditorPlugin extends Plugin {
         this.clearCharacterCount();
       }
     }));
+
+    // 全ノートを縦書きで自動表示（active-leaf-change で確実に捕捉）
+    this.registerEvent(
+      this.app.workspace.on('active-leaf-change', async (leaf) => {
+        if (!this.settings.autoOpenVertical) return;
+        if (this.isAutoOpening) return;
+        if (!leaf || !(leaf.view instanceof MarkdownView)) return;
+
+        const file = leaf.view.file;
+        if (!file || file.extension !== 'md') return;
+
+        // 同じファイルの縦書きビューが既に存在する場合はそちらをアクティブにする
+        const existingLeaf = this.app.workspace.getLeavesOfType(VERTICAL_EDITOR_VIEW_TYPE)
+          .find(l => {
+            const view = l.view as unknown as VerticalEditorView;
+            return view.file?.path === file.path;
+          });
+        if (existingLeaf) {
+          this.app.workspace.setActiveLeaf(existingLeaf, { focus: true });
+          return;
+        }
+
+        // MarkdownView を縦書きビューに置き換える
+        this.isAutoOpening = true;
+        try {
+          await leaf.setViewState({
+            type: VERTICAL_EDITOR_VIEW_TYPE,
+            state: { file: file.path },
+            active: true,
+          });
+        } finally {
+          this.isAutoOpening = false;
+        }
+      })
+    );
 
     // main.ts の VerticalEditorPlugin クラス内 onload メソッドに追加
     this.registerEvent(

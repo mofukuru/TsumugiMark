@@ -3,17 +3,22 @@ import VerticalEditorPlugin from "./main";
 import { t } from './localization';
 
 export type CharCountMode = 'includeSpaces' | 'excludeSpaces';
+export type WritingMode = 'vertical-rl' | 'vertical-lr';
+export type ColumnAlignment = 'left' | 'center' | 'right';
 
 // 設定項目のインターフェースを定義
 export interface VerticalEditorSettings {
     fontFamily: string;
     fontSize: string;
     lineHeight: string;
-    letterSpacing: string; // 文字間隔の設定を追加
-    maxHeight: string; // 一行の最大文字数（または幅）の設定を追加
+    letterSpacing: string;
+    maxHeight: string;
     charsPerColumn: string;
     charCountMode: CharCountMode;
-    enableAutoIndent: boolean; // 段落の自動字下げ
+    enableAutoIndent: boolean;
+    writingMode: WritingMode;
+    columnAlignment: ColumnAlignment;
+    autoOpenVertical: boolean;
 }
 
 // 設定のデフォルト値を定義
@@ -21,11 +26,14 @@ export const DEFAULT_SETTINGS: VerticalEditorSettings = {
     fontFamily: '游明朝, "Yu Mincho", YuMincho, "Hiragino Mincho ProN", "MS PMincho", serif',
     fontSize: '18px',
     lineHeight: '1.8',
-    letterSpacing: '0', // デフォルトの文字間隔
-    maxHeight: 'auto', // デフォルトの最大幅（自動）
+    letterSpacing: '0',
+    maxHeight: 'auto',
     charsPerColumn: 'auto',
     charCountMode: 'includeSpaces',
-    enableAutoIndent: true, // デフォルトは字下げあり
+    enableAutoIndent: true,
+    writingMode: 'vertical-rl',
+    columnAlignment: 'right',
+    autoOpenVertical: false,
 };
 
 // 設定タブを管理するクラス
@@ -49,8 +57,8 @@ export class VerticalEditorSettingTab extends PluginSettingTab {
                 .addOption('includeSpaces', t('Include spaces'))
                 .addOption('excludeSpaces', t('Exclude spaces'))
                 .setValue(this.plugin.settings.charCountMode)
-                .onChange(async (value: CharCountMode) => {
-                    this.plugin.settings.charCountMode = value;
+                .onChange(async (value) => {
+                    this.plugin.settings.charCountMode = value as CharCountMode;
                     await this.plugin.saveSettingsAndUpdateViews();
                 }));
 
@@ -149,6 +157,44 @@ export class VerticalEditorSettingTab extends PluginSettingTab {
                     }
                     await this.plugin.saveSettingsAndUpdateViews();
             }));
+
+        // 縦書きの方向設定
+        new Setting(containerEl)
+            .setName(t('Writing direction'))
+            .setDesc(t('Set the writing direction for the vertical editor.'))
+            .addDropdown(dropdown => dropdown
+                .addOption('vertical-rl', t('Right to left (traditional)'))
+                .addOption('vertical-lr', t('Left to right'))
+                .setValue(this.plugin.settings.writingMode)
+                .onChange(async (value) => {
+                    this.plugin.settings.writingMode = value as WritingMode;
+                    await this.plugin.saveSettingsAndUpdateViews();
+                }));
+
+        // 列の配置設定
+        new Setting(containerEl)
+            .setName(t('Column alignment'))
+            .setDesc(t('Set the horizontal position of the text columns on screen.'))
+            .addDropdown(dropdown => dropdown
+                .addOption('left', t('Left'))
+                .addOption('center', t('Center'))
+                .addOption('right', t('Right'))
+                .setValue(this.plugin.settings.columnAlignment)
+                .onChange(async (value) => {
+                    this.plugin.settings.columnAlignment = value as ColumnAlignment;
+                    await this.plugin.saveSettingsAndUpdateViews();
+                }));
+
+        // 全ノートを縦書きで自動表示
+        new Setting(containerEl)
+            .setName(t('Open all notes in vertical mode'))
+            .setDesc(t('Automatically open Markdown notes in the vertical editor.'))
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.autoOpenVertical)
+                .onChange(async (value) => {
+                    this.plugin.settings.autoOpenVertical = value;
+                    await this.plugin.saveSettingsAndUpdateViews();
+                }));
 
         new Setting(containerEl).setName(t('Advanced')).setHeading();
 

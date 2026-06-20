@@ -1,5 +1,5 @@
 .vertical-editor-view {
-  writing-mode: vertical-rl;
+  writing-mode: var(--vertical-editor-writing-mode, vertical-rl);
   padding: 20px;
   outline: none;
   contain: layout style paint;
@@ -8,6 +8,7 @@
   line-height: var(--vertical-editor-line-height, 1.8);
   letter-spacing: var(--vertical-editor-letter-spacing, 0.1em);
   height: var(--vertical-editor-max-height, 1500px);
+  flex-shrink: 0;
   /* line-break: strict; */
   /* word-break: keep-all; */
 }
@@ -28,7 +29,34 @@
 }
 
 .vertical-editor-grid-container {
-  display: grid;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Obsidian の .view-content と分離した専用スクロールコンテナ */
+.vertical-editor-scroll-container {
+  display: flex;
+  overflow: auto;
+  height: 100%;
+  align-items: flex-start;
+}
+
+.vertical-editor-scroll-container.column-align-left {
+  justify-content: flex-start;
+}
+
+/*
+ * safe center: コンテンツが収まる場合は中央寄せ。はみ出す場合は flex-start に
+ * フォールバックして左端を起点にし、左方向のスクロールを失わないようにする。
+ * はみ出した場合の「中央スクロール位置」は applyCenterScroll() が scrollLeft で設定する。
+ */
+.vertical-editor-scroll-container.column-align-center {
+  justify-content: safe center;
+}
+
+/* row-reverse にすることで右端が起点となり、overflow は左方向に伸びてスクロール可能になる */
+.vertical-editor-scroll-container.column-align-right {
+  flex-direction: row-reverse;
 }
 
 .vertical-editor-view p {

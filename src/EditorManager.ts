@@ -9,8 +9,8 @@ export class EditorManager {
     private fileManager: FileManager;
     private file: TFile | null = null;
     private settings: VerticalEditorSettings;
-    private saveTimeout: NodeJS.Timeout | null = null;
-    private inputTimeout: NodeJS.Timeout | null = null;
+    private saveTimeout: ReturnType<typeof setTimeout> | null = null;
+    private inputTimeout: ReturnType<typeof setTimeout> | null = null;
     private isDirty = false;
 
     private readonly AUTO_SAVE_DELAY = 2000;
@@ -93,6 +93,8 @@ export class EditorManager {
             } else {
                 this.insertParagraph();
             }
+        } else if (e.key === ' ') {
+            this.handleSpaceForHeading(e);
         }
     };
 
@@ -136,12 +138,83 @@ export class EditorManager {
     private findParentParagraph(node: Node): HTMLElement | null {
         let current: Node | null = node;
         while (current && current !== this.editorDiv) {
-            if (current.nodeType === Node.ELEMENT_NODE && (current as HTMLElement).tagName === 'P') {
-                return current as HTMLElement;
+            if (current.nodeType === Node.ELEMENT_NODE) {
+                const tag = (current as HTMLElement).tagName;
+                if (tag === 'P' || /^H[1-6]$/.test(tag)) {
+                    return current as HTMLElement;
+                }
             }
             current = current.parentNode;
         }
         return null;
+    }
+
+    private handleSpaceForHeading(e: KeyboardEvent): void {
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) return;
+
+        const range = selection.getRangeAt(0);
+        if (!range.collapsed) return;
+
+        const currentBlock = this.findParentParagraph(range.startContainer);
+
+        // <p> 要素内のケース
+        if (currentBlock && currentBlock.tagName === 'P') {
+            const text = currentBlock.textContent || '';
+            const m = /^(#{1,6})$/.exec(text.trim());
+            if (!m) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+            this.convertNodeToHeading(currentBlock, m[1].length);
+            return;
+        }
+
+        // <p> 外（空ノートの先頭等）: テキストノードが editorDiv の直接の子の場合
+        if (!currentBlock) {
+            const container = range.startContainer;
+            if (container.nodeType !== Node.TEXT_NODE) return;
+            if (container.parentElement !== this.editorDiv) return;
+
+            const text = container.textContent || '';
+            const m = /^(#{1,6})$/.exec(text.trim());
+            if (!m) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const level = m[1].length;
+            const heading = document.createElement(`h${level}`);
+            heading.innerHTML = '<br>';
+            this.editorDiv.insertBefore(heading, container);
+            (container as ChildNode).remove();
+            this.moveCursorInsideHeading(heading);
+            this.isDirty = true;
+        }
+    }
+
+    private convertNodeToHeading(node: HTMLElement, level: number): void {
+        const heading = document.createElement(`h${level}`);
+        heading.innerHTML = '<br>';
+        node.replaceWith(heading);
+        this.moveCursorInsideHeading(heading);
+        this.isDirty = true;
+    }
+
+    private moveCursorInsideHeading(heading: HTMLElement): void {
+        const selection = window.getSelection();
+        if (!selection) return;
+
+        const br = heading.querySelector('br');
+        const range = document.createRange();
+        if (br) {
+            range.setStartBefore(br);
+        } else {
+            range.setStart(heading, 0);
+        }
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
     }
 
     private splitParagraph(range: Range, currentParagraph: HTMLElement, newParagraph: HTMLElement): void {

@@ -15,14 +15,14 @@ interface VerticalEditorViewState {
 
 export class VerticalEditorView extends ItemView {
     file: TFile | null = null;
-    editorDiv: HTMLDivElement;
+    editorDiv!: HTMLDivElement;
 
     private settings: VerticalEditorSettings;
     private plugin: VerticalEditorPlugin;
 
-    private fileManager: FileManager;
-    private viewRenderer: ViewRenderer;
-    private editorManager: EditorManager;
+    private fileManager!: FileManager;
+    private viewRenderer!: ViewRenderer;
+    private editorManager!: EditorManager;
     private fileModifyEventRef: any = null;
 
     get isSavingInternally(): boolean {
@@ -52,7 +52,10 @@ export class VerticalEditorView extends ItemView {
         container.empty();
         container.addClass(VERTICAL_EDITOR_VIEW_TYPE + "-container", "vertical-editor-grid-container");
 
-        this.editorDiv = container.createDiv({ cls: VERTICAL_EDITOR_VIEW_TYPE });
+        // Obsidian の .view-content スタイルと干渉しないよう専用スクロールコンテナを挟む
+        const scrollContainer = container.createDiv({ cls: "vertical-editor-scroll-container" });
+
+        this.editorDiv = scrollContainer.createDiv({ cls: VERTICAL_EDITOR_VIEW_TYPE });
         this.editorDiv.contentEditable = "true";
         this.editorDiv.addClass('vertical-editor-view');
 

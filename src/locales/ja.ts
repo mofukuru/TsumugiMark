@@ -28,5 +28,16 @@ export default {
   'Failed to load file "%1".': 'ファイル「%1」の読み込みに失敗しました。',
   'Vertical Editor': '縦書きエディタ',
   'Loading file...': 'ファイルを読み込み中...',
-  'No file specified.': 'ファイルが指定されていません。'
+  'No file specified.': 'ファイルが指定されていません。',
+  'Writing direction': '縦書きの方向',
+  'Set the writing direction for the vertical editor.': '縦書きエディタのテキストが流れる方向を設定します。',
+  'Right to left (traditional)': '右から左（伝統的な縦書き）',
+  'Left to right': '左から右',
+  'Column alignment': '列の配置',
+  'Set the horizontal position of the text columns on screen.': '画面上のテキスト列の水平方向の表示位置を設定します。',
+  'Left': '左',
+  'Center': '中央',
+  'Right': '右',
+  'Open all notes in vertical mode': '全ノートを縦書きで開く',
+  'Automatically open Markdown notes in the vertical editor.': 'Markdownノートを自動的に縦書きエディタで開きます。'
 };

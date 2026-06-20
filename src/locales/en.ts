@@ -27,5 +27,16 @@ export default {
   'Failed to load file "%1".': 'Failed to load file "%1".',
   'Vertical Editor': 'Vertical editor',
   'Loading file...': 'Loading file...',
-  'No file specified.': 'No file specified.'
+  'No file specified.': 'No file specified.',
+  'Writing direction': 'Writing direction',
+  'Set the writing direction for the vertical editor.': 'Set the writing direction for the vertical editor.',
+  'Right to left (traditional)': 'Right to left (traditional)',
+  'Left to right': 'Left to right',
+  'Column alignment': 'Column alignment',
+  'Set the horizontal position of the text columns on screen.': 'Set the horizontal position of the text columns on screen.',
+  'Left': 'Left',
+  'Center': 'Center',
+  'Right': 'Right',
+  'Open all notes in vertical mode': 'Open all notes in vertical mode',
+  'Automatically open Markdown notes in the vertical editor.': 'Automatically open Markdown notes in the vertical editor.'
 };

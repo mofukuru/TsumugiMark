@@ -96,6 +96,16 @@ export class SwitchText {
             replacement: () => '  \n'
         });
 
+        // 見出し内の <br>（編集時のプレースホルダー）は無視する
+        this.turndownService.addRule('brInHeading', {
+            filter: (node: Node) => {
+                if (node.nodeName !== 'BR') return false;
+                const parent = node.parentElement;
+                return parent ? /^H[1-6]$/.test(parent.tagName) : false;
+            },
+            replacement: () => ''
+        });
+
         // ve-empty-line を空行として処理（1要素につき \n\n = 1段落）
         this.turndownService.addRule('veEmptyLine', {
             filter: (node: Node) => {
@@ -167,7 +177,11 @@ export class SwitchText {
         return html;
     }
 
-        fromHTMLToMarkdown(htmlContent: string | HTMLElement): string {
-        return this.turndownService.turndown(htmlContent);
+    fromHTMLToMarkdown(htmlContent: string | HTMLElement): string {
+        // HTMLElement を直接渡すと TurndownService はその子ノードのみ処理し、
+        // <h1> 等のラッパー要素自体が無視されて見出し記法が失われる。
+        // outerHTML (文字列) を渡すことでルート要素ごと変換される。
+        const input = htmlContent instanceof HTMLElement ? htmlContent.outerHTML : htmlContent;
+        return this.turndownService.turndown(input);
     }
 }

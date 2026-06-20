@@ -179,6 +179,7 @@ export class FileManager {
             requestAnimationFrame(() => {
                 editorDiv.scrollTop = scrollPosition.top;
                 editorDiv.scrollLeft = scrollPosition.left;
+                renderer.applyCenterScroll();
             });
         });
     }
