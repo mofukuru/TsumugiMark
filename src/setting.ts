@@ -19,6 +19,10 @@ export interface VerticalEditorSettings {
     writingMode: WritingMode;
     columnAlignment: ColumnAlignment;
     autoOpenVertical: boolean;
+    showLineCountBar: boolean;
+    enableTypewriterMode: boolean;
+    typewriterOnlyWhenTyping: boolean;
+    highlightActiveParagraph: boolean;
 }
 
 // 設定のデフォルト値を定義
@@ -34,6 +38,11 @@ export const DEFAULT_SETTINGS: VerticalEditorSettings = {
     writingMode: 'vertical-rl',
     columnAlignment: 'right',
     autoOpenVertical: false,
+    // 既存ユーザーの画面を勝手に変えないよう、追加機能はすべて既定で無効
+    showLineCountBar: false,
+    enableTypewriterMode: false,
+    typewriterOnlyWhenTyping: false,
+    highlightActiveParagraph: false,
 };
 
 // 設定タブを管理するクラス
@@ -59,6 +68,17 @@ export class VerticalEditorSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.charCountMode)
                 .onChange(async (value) => {
                     this.plugin.settings.charCountMode = value as CharCountMode;
+                    await this.plugin.saveSettingsAndUpdateViews();
+                }));
+
+        // 行数（表示列数）バーの表示設定
+        new Setting(containerEl)
+            .setName(t('Show line count bar'))
+            .setDesc(t('Show the number of lines (columns) at the top of the vertical editor.'))
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showLineCountBar)
+                .onChange(async (value) => {
+                    this.plugin.settings.showLineCountBar = value;
                     await this.plugin.saveSettingsAndUpdateViews();
                 }));
 
@@ -182,6 +202,37 @@ export class VerticalEditorSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.columnAlignment)
                 .onChange(async (value) => {
                     this.plugin.settings.columnAlignment = value as ColumnAlignment;
+                    await this.plugin.saveSettingsAndUpdateViews();
+                }));
+
+        // タイプライターモード（編集中の列を画面中央に固定）
+        new Setting(containerEl)
+            .setName(t('Typewriter mode'))
+            .setDesc(t('Keep the current line centered on screen while editing.'))
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.enableTypewriterMode)
+                .onChange(async (value) => {
+                    this.plugin.settings.enableTypewriterMode = value;
+                    await this.plugin.saveSettingsAndUpdateViews();
+                }));
+
+        new Setting(containerEl)
+            .setName(t('Only scroll when typing'))
+            .setDesc(t('Do not recenter when moving the cursor with clicks or arrow keys.'))
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.typewriterOnlyWhenTyping)
+                .onChange(async (value) => {
+                    this.plugin.settings.typewriterOnlyWhenTyping = value;
+                    await this.plugin.saveSettingsAndUpdateViews();
+                }));
+
+        new Setting(containerEl)
+            .setName(t('Highlight active paragraph'))
+            .setDesc(t('Highlight the paragraph that contains the cursor.'))
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.highlightActiveParagraph)
+                .onChange(async (value) => {
+                    this.plugin.settings.highlightActiveParagraph = value;
                     await this.plugin.saveSettingsAndUpdateViews();
                 }));
 

@@ -1,12 +1,8 @@
 import { App, TFile, Notice } from "obsidian";
 import { SwitchText } from "./SwitchText";
 import { ViewRenderer } from "./ViewRenderer";
+import { domToMarkdown, splitFrontmatter } from "./MarkdownDocument";
 import { t } from "./localization";
-
-interface Token {
-    type: 'text' | 'blank';
-    content?: string;
-}
 
 export class FileManager {
     private app: App;
@@ -14,6 +10,12 @@ export class FileManager {
     private lastInternalSaveAt = 0;
     private readonly IGNORE_MODIFY_DURATION = 1500;
     private readonly SAVE_INTERNALY_DELAY = 100;
+
+    /**
+     * frontmatter（--- で囲まれたプロパティ）は DOM に載せずに退避しておく。
+     * HTML 化すると `## title: ...` のような見出しに化けて完全に壊れてしまうため。
+     */
+    private frontmatter = '';
 
     constructor(app: App) {
         this.app = app;
@@ -27,8 +29,8 @@ export class FileManager {
         
         try {
             const originalContent = await this.app.vault.read(file);
-            const markdownContent = this.convertDOMToMarkdown(editorDiv);
-            
+            const markdownContent = this.frontmatter + this.convertDOMToMarkdown(editorDiv);
+
             if (this.hasContentChanged(originalContent, markdownContent)) {
                 await this.app.vault.modify(file, markdownContent);
             }
@@ -47,103 +49,43 @@ export class FileManager {
         return this.isSavingInternally || sinceSave < this.IGNORE_MODIFY_DURATION;
     }
 
-    async loadFileContent(fileToLoad: TFile, editorDiv: HTMLDivElement, renderer: ViewRenderer): Promise<void> {
+    async loadFileContent(
+        fileToLoad: TFile,
+        editorDiv: HTMLDivElement,
+        renderer: ViewRenderer,
+        onRendered?: () => void
+    ): Promise<void> {
         if (!editorDiv) return;
 
         const scrollPosition = this.saveScrollPosition(editorDiv);
 
         try {
             const fileContent = await this.app.vault.read(fileToLoad);
-            const htmlContent = await this.convertMarkdownToHTML(fileContent);
-            
-            this.renderHTMLToEditor(htmlContent, editorDiv, renderer, scrollPosition);
+            // 外部で frontmatter だけ編集された場合にも追随できるよう、読み込みのたびに取り直す
+            const body = this.extractFrontmatter(fileContent);
+            const htmlContent = await this.convertMarkdownToHTML(body);
+
+            this.renderHTMLToEditor(htmlContent, editorDiv, renderer, scrollPosition, onRendered);
         } catch (error) {
             renderer.displayEmptyMessage(t('Failed to load file "%1".', fileToLoad.basename));
             console.error('Load error:', error);
         }
     }
 
+    /**
+     * frontmatter を切り出して保持し、本文だけを返す。
+     * 直後の空行まで含めて保持することで、保存時に元のファイルと同じ形へ復元できる。
+     */
+    private extractFrontmatter(content: string): string {
+        const { frontmatter, body } = splitFrontmatter(content);
+        // 前のファイルの frontmatter が残らないよう、無い場合も必ず上書きする
+        this.frontmatter = frontmatter;
+        return body;
+    }
+
     private convertDOMToMarkdown(editorDiv: HTMLDivElement): string {
         const clonedDiv = editorDiv.cloneNode(true) as HTMLDivElement;
-        const tokens = this.extractTokensFromDOM(clonedDiv);
-        return this.tokensToMarkdown(tokens);
-    }
-
-    private extractTokensFromDOM(div: HTMLDivElement): Token[] {
-        const sw = new SwitchText(this.app);
-        const tokens: Token[] = [];
-        const nodes = Array.from(div.childNodes);
-
-        nodes.forEach(node => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-                const el = node as HTMLElement;
-                
-                if (this.isEmptyLine(el)) {
-                    tokens.push({ type: 'blank' });
-                    return;
-                }
-
-                const md = sw.fromHTMLToMarkdown(el).trimEnd();
-                if (md.length > 0) {
-                    tokens.push({ type: 'text', content: md });
-                }
-            } else if (node.nodeType === Node.TEXT_NODE) {
-                const text = (node.textContent || '').trimEnd();
-                if (text.length > 0) {
-                    tokens.push({ type: 'text', content: text });
-                }
-            }
-        });
-
-        return tokens;
-    }
-
-    private isEmptyLine(el: HTMLElement): boolean {
-        if (el.classList.contains('ve-empty-line')) {
-            return true;
-        }
-
-        if (el.tagName === 'P') {
-            const children = Array.from(el.childNodes);
-            const hasOnlyBr = children.length === 1 && children[0].nodeName === 'BR';
-            const isEmpty = children.length === 0 || (el.textContent || '').trim() === '';
-            return hasOnlyBr || isEmpty;
-        }
-
-        return false;
-    }
-
-    private tokensToMarkdown(tokens: Token[]): string {
-        let markdown = '';
-        let pendingBlanks = 0;
-        let hasText = false;
-
-        tokens.forEach(token => {
-            if (token.type === 'blank') {
-                pendingBlanks++;
-                return;
-            }
-
-            if (!hasText) {
-                if (pendingBlanks > 0) {
-                    markdown += '\n'.repeat(pendingBlanks);
-                    pendingBlanks = 0;
-                }
-                markdown += token.content;
-                hasText = true;
-            } else {
-                const newlineCount = pendingBlanks + 1;
-                markdown += '\n'.repeat(newlineCount);
-                markdown += token.content;
-                pendingBlanks = 0;
-            }
-        });
-
-        if (pendingBlanks > 0) {
-            markdown += '\n'.repeat(pendingBlanks);
-        }
-
-        return markdown;
+        return domToMarkdown(clonedDiv, new SwitchText(this.app));
     }
 
     private async convertMarkdownToHTML(fileContent: string): Promise<string> {
@@ -163,23 +105,26 @@ export class FileManager {
         htmlContent: string,
         editorDiv: HTMLDivElement,
         renderer: ViewRenderer,
-        scrollPosition: { top: number; left: number }
+        scrollPosition: { top: number; left: number },
+        onRendered?: () => void
     ): void {
         requestAnimationFrame(() => {
             editorDiv.empty();
             const parser = new DOMParser();
             const doc = parser.parseFromString(htmlContent, "text/html");
-            
+
             Array.from(doc.body.childNodes).forEach(node => {
                 editorDiv.appendChild(node.cloneNode(true));
             });
 
             renderer.applyStyles();
-            
+
             requestAnimationFrame(() => {
                 editorDiv.scrollTop = scrollPosition.top;
                 editorDiv.scrollLeft = scrollPosition.left;
                 renderer.applyCenterScroll();
+                // 描画が確定してから行数バー等に通知する（列数の計測にはレイアウトが必要）
+                onRendered?.();
             });
         });
     }

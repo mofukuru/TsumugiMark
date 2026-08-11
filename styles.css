@@ -28,7 +28,10 @@
   padding-top: 50px;
 }
 
+/* 行数バー（任意表示）とスクロール領域を縦に積むため flex column にする */
 .vertical-editor-grid-container {
+  display: flex;
+  flex-direction: column;
   height: 100%;
   overflow: hidden;
 }
@@ -37,8 +40,21 @@
 .vertical-editor-scroll-container {
   display: flex;
   overflow: auto;
-  height: 100%;
+  /* バーの有無にかかわらず残り全高を占める（min-height:0 がないと flex 内で縮まない） */
+  flex: 1 1 auto;
+  min-height: 0;
   align-items: flex-start;
+}
+
+/* 行数バー: ペイン上部の細い情報バー */
+.vertical-editor-info-bar {
+  writing-mode: horizontal-tb; /* バー自体は横書き */
+  flex: 0 0 auto;
+  padding: 2px 12px;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--background-modifier-border);
+  text-align: right;
 }
 
 .vertical-editor-scroll-container.column-align-left {
@@ -136,6 +152,67 @@
   text-emphasis-color: currentColor;
   text-emphasis-position: right;
   font-weight: normal; /* HTMLの太字を圏点に置換するため、fontweightは通常に */
+}
+
+/*
+ * タイプライターモード: 文書の最初/最後の列も画面中央に来られるよう左右に余白を確保する。
+ * editorDiv 自身が vertical-rl のため margin-inline は「上下」になってしまう。
+ * 水平方向の余白が必要なので物理プロパティ（left/right）で指定している。
+ */
+.vertical-editor-scroll-container.typewriter-enabled > .vertical-editor-view {
+  margin-left: var(--ve-typewriter-margin, 50%);
+  margin-right: var(--ve-typewriter-margin, 50%);
+}
+
+/* カーソルのある段落のハイライト */
+.vertical-editor-view p.ve-active-paragraph,
+.vertical-editor-view h1.ve-active-paragraph,
+.vertical-editor-view h2.ve-active-paragraph,
+.vertical-editor-view h3.ve-active-paragraph,
+.vertical-editor-view h4.ve-active-paragraph,
+.vertical-editor-view h5.ve-active-paragraph,
+.vertical-editor-view h6.ve-active-paragraph {
+  background-color: var(--text-selection);
+}
+
+/* 保護ブロック: 縦書き非対応の記法を読み取り専用の横書きチップで表示 */
+.vertical-editor-view .ve-protected {
+  writing-mode: horizontal-tb;
+  max-inline-size: 60vh; /* 縦書き内で紙面を圧迫しない程度 */
+  margin: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  background: var(--background-secondary);
+  font-size: var(--font-ui-smaller);
+  user-select: none;
+}
+
+.vertical-editor-view .ve-protected-label {
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.vertical-editor-view .ve-protected-source {
+  font-family: var(--font-monospace);
+  white-space: pre-wrap;
+  overflow: auto;
+  margin: 0;
+}
+
+/* wikilink / 埋め込み / 脚注のインライン表示 */
+.vertical-editor-view .ve-wikilink {
+  color: var(--link-color);
+  text-decoration: underline;
+}
+
+.vertical-editor-view .ve-embed {
+  color: var(--text-muted);
+}
+
+.vertical-editor-view .ve-footnote {
+  color: var(--text-faint);
+  font-size: 0.8em;
 }
 
 /* em要素（イタリック）を縦書きで見やすく */

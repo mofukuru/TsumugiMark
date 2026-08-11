@@ -38,5 +38,22 @@ export default {
   'Center': 'Center',
   'Right': 'Right',
   'Open all notes in vertical mode': 'Open all notes in vertical mode',
-  'Automatically open Markdown notes in the vertical editor.': 'Automatically open Markdown notes in the vertical editor.'
+  'Automatically open Markdown notes in the vertical editor.': 'Automatically open Markdown notes in the vertical editor.',
+  'Typewriter mode': 'Typewriter mode',
+  'Keep the current line centered on screen while editing.': 'Keep the current line centered on screen while editing.',
+  'Only scroll when typing': 'Only scroll when typing',
+  'Do not recenter when moving the cursor with clicks or arrow keys.': 'Do not recenter when moving the cursor with clicks or arrow keys.',
+  'Highlight active paragraph': 'Highlight active paragraph',
+  'Highlight the paragraph that contains the cursor.': 'Highlight the paragraph that contains the cursor.',
+  'Toggle typewriter mode': 'Toggle typewriter mode',
+  'Show line count bar': 'Show line count bar',
+  'Show the number of lines (columns) at the top of the vertical editor.': 'Show the number of lines (columns) at the top of the vertical editor.',
+  'Lines: %1': 'Lines: %1',
+  'Line %1 of %2': 'Line %1 of %2',
+  'Insert ruby': 'Insert ruby',
+  'Select the base text before inserting ruby.': 'Select the base text before inserting ruby.',
+  'Table (read-only in vertical editor)': 'Table (read-only in vertical editor)',
+  'Code block (read-only in vertical editor)': 'Code block (read-only in vertical editor)',
+  'Callout (read-only in vertical editor)': 'Callout (read-only in vertical editor)',
+  'Footnote (read-only in vertical editor)': 'Footnote (read-only in vertical editor)'
 };

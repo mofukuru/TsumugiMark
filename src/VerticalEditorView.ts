@@ -4,6 +4,8 @@ import VerticalEditorPlugin from "./main";
 import { FileManager } from "./FileManager";
 import { ViewRenderer } from "./ViewRenderer";
 import { EditorManager } from "./EditorManager";
+import { TypewriterScroller } from "./TypewriterScroller";
+import { LineCountBar } from "./LineCountBar";
 import { t } from "./localization";
 
 export const VERTICAL_EDITOR_VIEW_TYPE = "vertical-editor";
@@ -23,6 +25,8 @@ export class VerticalEditorView extends ItemView {
     private fileManager!: FileManager;
     private viewRenderer!: ViewRenderer;
     private editorManager!: EditorManager;
+    private typewriterScroller!: TypewriterScroller;
+    private lineCountBar!: LineCountBar;
     private fileModifyEventRef: any = null;
 
     get isSavingInternally(): boolean {
@@ -61,7 +65,16 @@ export class VerticalEditorView extends ItemView {
 
         this.fileManager = new FileManager(this.app);
         this.viewRenderer = new ViewRenderer(this.editorDiv, this.settings, this.plugin);
-        this.editorManager = new EditorManager(this.editorDiv, this.plugin, this.fileManager, this.settings);
+        this.typewriterScroller = new TypewriterScroller(scrollContainer, this.editorDiv, this.settings);
+        this.lineCountBar = new LineCountBar(container, this.editorDiv, this.settings);
+        this.editorManager = new EditorManager(
+            this.editorDiv,
+            this.plugin,
+            this.fileManager,
+            this.settings,
+            this.typewriterScroller,
+            this.lineCountBar
+        );
 
         this.viewRenderer.applyStyles();
 
@@ -111,6 +124,8 @@ export class VerticalEditorView extends ItemView {
     updateSettings(newSettings: VerticalEditorSettings): void {
         this.settings = newSettings;
         this.viewRenderer.updateSettings(newSettings);
+        this.typewriterScroller?.updateSettings(newSettings);
+        this.lineCountBar?.updateSettings(newSettings);
         if (this.editorManager) {
             this.editorManager.updateSettings(newSettings);
         }
@@ -118,11 +133,19 @@ export class VerticalEditorView extends ItemView {
     }
 
     async loadFileContent(fileToLoad: TFile): Promise<void> {
-        await this.fileManager.loadFileContent(fileToLoad, this.editorDiv, this.viewRenderer);
+        await this.fileManager.loadFileContent(fileToLoad, this.editorDiv, this.viewRenderer, () => {
+            this.lineCountBar?.updateNow();
+            this.typewriterScroller?.notifyContentReloaded();
+        });
         if (this.editorManager) {
             this.editorManager.resetDirty();
         }
         this.refreshStatusBar();
+    }
+
+    /** ルビ挿入コマンドの委譲先。 */
+    insertRuby(): boolean {
+        return this.editorManager ? this.editorManager.insertRuby() : false;
     }
 
     refreshStatusBar(): void {
@@ -160,6 +183,8 @@ export class VerticalEditorView extends ItemView {
         }
 
         this.editorManager.removeEventListeners();
+        this.typewriterScroller?.destroy();
+        this.lineCountBar?.destroy();
 
         // 実際に編集があった場合のみ保存
         if (this.file && this.editorManager.getDirty()) {

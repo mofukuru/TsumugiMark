@@ -39,5 +39,22 @@ export default {
   'Center': '中央',
   'Right': '右',
   'Open all notes in vertical mode': '全ノートを縦書きで開く',
-  'Automatically open Markdown notes in the vertical editor.': 'Markdownノートを自動的に縦書きエディタで開きます。'
+  'Automatically open Markdown notes in the vertical editor.': 'Markdownノートを自動的に縦書きエディタで開きます。',
+  'Typewriter mode': 'タイプライターモード',
+  'Keep the current line centered on screen while editing.': '編集中の行を常に画面中央に保ちます。',
+  'Only scroll when typing': '入力時のみスクロール',
+  'Do not recenter when moving the cursor with clicks or arrow keys.': 'クリックや矢印キーでのカーソル移動時は追従しません。',
+  'Highlight active paragraph': '編集中の段落をハイライト',
+  'Highlight the paragraph that contains the cursor.': 'カーソルのある段落を強調表示します。',
+  'Toggle typewriter mode': 'タイプライターモードの切り替え',
+  'Show line count bar': '行数バーを表示',
+  'Show the number of lines (columns) at the top of the vertical editor.': '縦書きエディタの上部に行数（表示列数）を表示します。',
+  'Lines: %1': '行数: %1',
+  'Line %1 of %2': '%1 / %2 行目',
+  'Insert ruby': 'ルビを振る',
+  'Select the base text before inserting ruby.': 'ルビを振る文字を選択してください。',
+  'Table (read-only in vertical editor)': '表（縦書きエディタでは読み取り専用）',
+  'Code block (read-only in vertical editor)': 'コードブロック（縦書きエディタでは読み取り専用）',
+  'Callout (read-only in vertical editor)': 'コールアウト（縦書きエディタでは読み取り専用）',
+  'Footnote (read-only in vertical editor)': '脚注（縦書きエディタでは読み取り専用）'
 };

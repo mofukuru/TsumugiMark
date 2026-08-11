@@ -36,8 +36,10 @@ export class ViewRenderer {
             container.addClass(`column-align-${this.settings.columnAlignment || DEFAULT_SETTINGS.columnAlignment}`);
         }
 
-        // center以外に切り替えたときはObserverを解除し、center時は中央スクロールを反映
-        if ((this.settings.columnAlignment || DEFAULT_SETTINGS.columnAlignment) !== 'center') {
+        // center以外に切り替えたとき、またはタイプライターモード有効時はObserverを解除し、
+        // center時のみ中央スクロールを反映する
+        if (this.settings.enableTypewriterMode
+            || (this.settings.columnAlignment || DEFAULT_SETTINGS.columnAlignment) !== 'center') {
             this.resizeObserver?.disconnect();
             this.resizeObserver = null;
         } else {
@@ -47,6 +49,9 @@ export class ViewRenderer {
     }
 
     applyCenterScroll(): void {
+        // タイプライターモードはカーソル追従で自分でスクロールを制御するため、静的な中央化とは併用しない
+        if (this.settings.enableTypewriterMode) return;
+
         const alignment = this.settings.columnAlignment || DEFAULT_SETTINGS.columnAlignment;
         const container = this.editorDiv.parentElement as HTMLElement | null;
         if (!container || alignment !== 'center') return;

@@ -1,4 +1,4 @@
-import { Plugin, setIcon, MarkdownView, TFile } from "obsidian";
+import { Plugin, setIcon, MarkdownView, Notice, TFile } from "obsidian";
 import { VerticalEditorView, VERTICAL_EDITOR_VIEW_TYPE } from "./VerticalEditorView";
 import { SwitchView } from "./SwitchView";
 import {VerticalEditorSettingTab, VerticalEditorSettings, DEFAULT_SETTINGS} from "./setting";
@@ -30,6 +30,32 @@ export default class VerticalEditorPlugin extends Plugin {
       callback: () => {
         const sv = new SwitchView(this.app);
         void sv.fromMarkdownToVert();
+      },
+    });
+
+    // タイプライターモードの切り替え
+    this.addCommand({
+      id: "toggle-typewriter-mode",
+      name: t("Toggle typewriter mode"),
+      callback: async () => {
+        this.settings.enableTypewriterMode = !this.settings.enableTypewriterMode;
+        await this.saveSettingsAndUpdateViews();
+      },
+    });
+
+    // 選択範囲にルビを振る（縦書きエディタがアクティブなときのみ）
+    this.addCommand({
+      id: "insert-ruby",
+      name: t("Insert ruby"),
+      checkCallback: (checking: boolean) => {
+        const activeView = this.app.workspace.getActiveViewOfType(VerticalEditorView);
+        if (!activeView) return false;
+        if (checking) return true;
+
+        if (!activeView.insertRuby()) {
+          new Notice(t("Select the base text before inserting ruby."));
+        }
+        return true;
       },
     });
 

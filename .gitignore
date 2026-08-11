@@ -23,3 +23,7 @@ data.json
 
 # tempolary files
 temp/*
+
+# 実装指示書とローカル検証用スクリプト（配布物には含めない）
+docs
+scripts
