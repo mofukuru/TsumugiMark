@@ -20,7 +20,7 @@ TsumugiMark is a vertical writing plugin for [Obsidian](https://obsidian.md). It
 
 ### Advanced Features
 
-- **Typewriter Mode**: Keeps the line you are editing fixed at the centre of the screen. The view scrolls automatically as you type, so your visual focus never moves.
+- **Typewriter Mode**: Keeps the line you are editing fixed at the center of the screen. The view scrolls automatically as you type, so your visual focus never moves.
 - **Writing Direction**: Switch between right-to-left (traditional Japanese vertical writing) and left-to-right from settings.
 - **Column Alignment**: Static placement of the whole text block on screen — Left, Center, or Right. This is a fixed layout option; it does **not** follow the cursor (use Typewriter Mode for that).
 - **Protected Blocks**: Syntax that cannot be represented in vertical writing (tables, code fences, callouts, frontmatter, wikilinks, embeds, footnotes) is preserved verbatim, so opening and saving a note never destroys it.
@@ -78,10 +78,10 @@ When enabled, every Markdown note you open is automatically displayed in the ver
 ### Using Typewriter Mode
 
 1. Open **Settings → TsumugiMark** and turn on **Typewriter mode** (or run the **Toggle typewriter mode** command).
-2. The column containing the cursor is scrolled to the centre of the pane as you type.
-   - **Only scroll when typing** — recentre only on input, not when you move the cursor with clicks or arrow keys.
+2. The column containing the cursor is scrolled to the center of the pane as you type.
+   - **Only scroll when typing** — recenter only on input, not when you move the cursor with clicks or arrow keys.
    - **Highlight active paragraph** — tint the paragraph that contains the cursor.
-3. Scrolling with the mouse wheel temporarily suspends the follow behaviour; it resumes as soon as you type again.
+3. Scrolling with the mouse wheel temporarily suspends the follow behavior; it resumes as soon as you type again.
 4. While an IME conversion is in progress the view is not moved, so Japanese input never makes the screen shake.
 
 ### Adding Ruby (Furigana)
@@ -122,8 +122,8 @@ Access all settings via **Settings → TsumugiMark**.
 | **Characters per column** | Target number of characters per column. Automatically updates **Max width**. |
 | **Writing direction** | `Right to left (traditional)` or `Left to right`. |
 | **Column alignment** | Static horizontal position of the whole text block on screen: `Left`, `Center`, or `Right`. Does not follow the cursor. |
-| **Typewriter mode** | Keep the line being edited centred on screen. |
-| **Only scroll when typing** | Do not recentre when the cursor is moved with clicks or arrow keys. |
+| **Typewriter mode** | Keep the line being edited centered on screen. |
+| **Only scroll when typing** | Do not recenter when the cursor is moved with clicks or arrow keys. |
 | **Highlight active paragraph** | Highlight the paragraph that contains the cursor. |
 | **Open all notes in vertical mode** | Automatically open Markdown notes in the vertical editor. |
 | **Enable automatic paragraph indentation** | Indents the first character of each paragraph by 1em (novel style). |
@@ -156,13 +156,13 @@ Syntax that cannot be laid out vertically is **protected** instead: frontmatter,
 ## Version History
 
 ### 1.1.0
-- **Typewriter mode** — the line being edited is kept at the centre of the screen; the view follows the cursor as you type, with IME-safe behaviour, manual-scroll suspension, and edge padding so the first and last columns can be centred too
+- **Typewriter mode** — the line being edited is kept at the center of the screen; the view follows the cursor as you type, with IME-safe behavior, manual-scroll suspension, and edge padding so the first and last columns can be centered too
 - **Highlight active paragraph** and **Only scroll when typing** options for typewriter mode, plus a **Toggle typewriter mode** command
 - **Line count bar** — optional bar showing the number of displayed columns and the current line
 - **Ruby syntax expansion** — seven ruby syntaxes plus Kakuyomu emphasis dots `《《…》》`; the original syntax is now preserved on save, live conversion happens while typing, and a new **Insert ruby** command wraps the selection
 - **Protected blocks** — frontmatter, tables, code fences, callouts, wikilinks, embeds, and footnotes are no longer destroyed by opening and saving a note in the vertical editor
 - Fixed blank-line markers being injected into code fences
-- Added strikethrough and task list round-trip support, and normalised list markers to `- item`
+- Added strikethrough and task list round-trip support, and normalized list markers to `- item`
 
 ### 1.0.2
 - **Heading creation in the vertical editor** — type `#` (or `##`–`######`) at the start of a paragraph and press Space to convert it to a heading; headings are saved as proper Markdown syntax (`# Title`)

@@ -1,4 +1,4 @@
-import { App, MarkdownView, Notice, WorkspaceLeaf } from "obsidian";
+import { App, Notice, WorkspaceLeaf } from "obsidian";
 import { VERTICAL_EDITOR_VIEW_TYPE, VerticalEditorView } from "./VerticalEditorView"; // VERTICAL_EDITOR_VIEW_TYPE をインポート
 
 export class SwitchView {
