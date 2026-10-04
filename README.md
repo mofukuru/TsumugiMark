@@ -125,6 +125,7 @@ Access all settings via **Settings → TsumugiMark**.
 | **Typewriter mode** | Keep the line being edited centered on screen. |
 | **Only scroll when typing** | Do not recenter when the cursor is moved with clicks or arrow keys. |
 | **Highlight active paragraph** | Highlight the paragraph that contains the cursor. |
+| **Scroll horizontally with mouse wheel** | Turning the mouse wheel scrolls in the reading direction (wheel down moves left in right-to-left mode). On by default. |
 | **Open all notes in vertical mode** | Automatically open Markdown notes in the vertical editor. |
 | **Enable automatic paragraph indentation** | Indents the first character of each paragraph by 1em (novel style). |
 | **Max width** | Maximum column height in CSS units (e.g. `500px`, `auto`). Normally set automatically by **Characters per column**. |

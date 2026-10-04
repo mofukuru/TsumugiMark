@@ -4,7 +4,7 @@ Planned updates for TsumugiMark. Priorities may change based on feedback — req
 
 ## v1.1.1 — Fixes & issue requests
 
-- [ ] Scroll horizontally with the mouse wheel (#5)
+- [x] Scroll horizontally with the mouse wheel (#5)
 - [ ] Support `==highlight==` syntax (compatibility with Sidebar Highlights) (#5)
 - [ ] Preserve annotations/comments written for Sidebar Highlights (#5)
 - [ ] Restore the scroll position correctly when the file is reloaded after external edits

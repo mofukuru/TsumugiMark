@@ -56,5 +56,7 @@ export default {
   'Table (read-only in vertical editor)': '表（縦書きエディタでは読み取り専用）',
   'Code block (read-only in vertical editor)': 'コードブロック（縦書きエディタでは読み取り専用）',
   'Callout (read-only in vertical editor)': 'コールアウト（縦書きエディタでは読み取り専用）',
-  'Footnote (read-only in vertical editor)': '脚注（縦書きエディタでは読み取り専用）'
+  'Footnote (read-only in vertical editor)': '脚注（縦書きエディタでは読み取り専用）',
+  'Scroll horizontally with mouse wheel': 'マウスホイールで横スクロール',
+  'Scroll in the reading direction when turning the mouse wheel.': 'ホイールを回すと読み進める方向へ横スクロールします。'
 };
