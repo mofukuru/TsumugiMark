@@ -55,5 +55,7 @@ export default {
   'Table (read-only in vertical editor)': 'Table (read-only in vertical editor)',
   'Code block (read-only in vertical editor)': 'Code block (read-only in vertical editor)',
   'Callout (read-only in vertical editor)': 'Callout (read-only in vertical editor)',
-  'Footnote (read-only in vertical editor)': 'Footnote (read-only in vertical editor)'
+  'Footnote (read-only in vertical editor)': 'Footnote (read-only in vertical editor)',
+  'Scroll horizontally with mouse wheel': 'Scroll horizontally with mouse wheel',
+  'Scroll in the reading direction when turning the mouse wheel.': 'Scroll in the reading direction when turning the mouse wheel.'
 };

@@ -19,6 +19,7 @@ export interface VerticalEditorSettings {
     writingMode: WritingMode;
     columnAlignment: ColumnAlignment;
     autoOpenVertical: boolean;
+    wheelScrollHorizontally: boolean;
     showLineCountBar: boolean;
     enableTypewriterMode: boolean;
     typewriterOnlyWhenTyping: boolean;
@@ -38,6 +39,8 @@ export const DEFAULT_SETTINGS: VerticalEditorSettings = {
     writingMode: 'vertical-rl',
     columnAlignment: 'right',
     autoOpenVertical: false,
+    // 縦書きではホイールで横に動かないと読み進められないため、これは既定で有効にする
+    wheelScrollHorizontally: true,
     // 既存ユーザーの画面を勝手に変えないよう、追加機能はすべて既定で無効
     showLineCountBar: false,
     enableTypewriterMode: false,
@@ -202,6 +205,17 @@ export class VerticalEditorSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.columnAlignment)
                 .onChange(async (value) => {
                     this.plugin.settings.columnAlignment = value as ColumnAlignment;
+                    await this.plugin.saveSettingsAndUpdateViews();
+                }));
+
+        // マウスホイールで横スクロール
+        new Setting(containerEl)
+            .setName(t('Scroll horizontally with mouse wheel'))
+            .setDesc(t('Scroll in the reading direction when turning the mouse wheel.'))
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.wheelScrollHorizontally)
+                .onChange(async (value) => {
+                    this.plugin.settings.wheelScrollHorizontally = value;
                     await this.plugin.saveSettingsAndUpdateViews();
                 }));
 
