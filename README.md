@@ -160,6 +160,9 @@ See [ROADMAP.md](ROADMAP.md) for planned updates. Feature requests and bug repor
 
 ## Version History
 
+### 1.1.1
+- **Scroll horizontally with the mouse wheel** — turning the wheel scrolls in the reading direction (left for right-to-left, right for left-to-right). Ctrl/Cmd/Shift + wheel and trackpad swipes keep their usual behavior. Can be turned off in settings
+
 ### 1.1.0
 - **Typewriter mode** — the line being edited is kept at the center of the screen; the view follows the cursor as you type, with IME-safe behavior, manual-scroll suspension, and edge padding so the first and last columns can be centered too
 - **Highlight active paragraph** and **Only scroll when typing** options for typewriter mode, plus a **Toggle typewriter mode** command
