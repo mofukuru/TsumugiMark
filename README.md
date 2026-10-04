@@ -153,6 +153,10 @@ Syntax that cannot be laid out vertically is **protected** instead: frontmatter,
 - A single newline inside a paragraph is written back as a hard line break (two trailing spaces).
 - Multi-line footnote definitions are protected on their first line only.
 
+## Roadmap
+
+See [ROADMAP.md](ROADMAP.md) for planned updates. Feature requests and bug reports are welcome in [Issues](https://github.com/mofukuru/TsumugiMark/issues).
+
 ## Version History
 
 ### 1.1.0
