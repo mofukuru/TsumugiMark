@@ -156,7 +156,7 @@ Markdown ↔ HTML の変換は、見出し・太字・斜体・ルビ・傍点�
 
 ## 今後の予定
 
-予定しているアップデートは [ROADMAP.md](ROADMAP.md)（英語）にまとめています。機能の要望や不具合の報告は [Issues](https://github.com/mofukuru/TsumugiMark/issues) からお寄せください。
+予定しているアップデートは [ROADMAP.md](ROADMAP.md)（英語）にまとめています。機能の要望や不具合の報告は [Issues](https://github.com/mofukuru/tsumugi-mark/issues) からお寄せください。
 
 ## バージョン履歴
 

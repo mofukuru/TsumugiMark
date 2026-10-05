@@ -1,6 +1,6 @@
 # Roadmap
 
-Planned updates for TsumugiMark. Priorities may change based on feedback — requests and bug reports are welcome in [Issues](https://github.com/mofukuru/TsumugiMark/issues).
+Planned updates for TsumugiMark. Priorities may change based on feedback — requests and bug reports are welcome in [Issues](https://github.com/mofukuru/tsumugi-mark/issues).
 
 ## v1.1.1 — Released
 
