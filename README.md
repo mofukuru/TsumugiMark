@@ -156,7 +156,7 @@ Syntax that cannot be laid out vertically is **protected** instead: frontmatter,
 
 ## Roadmap
 
-See [ROADMAP.md](ROADMAP.md) for planned updates. Feature requests and bug reports are welcome in [Issues](https://github.com/mofukuru/TsumugiMark/issues).
+See [ROADMAP.md](ROADMAP.md) for planned updates. Feature requests and bug reports are welcome in [Issues](https://github.com/mofukuru/tsumugi-mark/issues).
 
 ## Version History
 
